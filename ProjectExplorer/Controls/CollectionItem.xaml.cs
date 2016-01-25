@@ -63,11 +63,13 @@ namespace ProjectExplorer.Controls
         }
 
         /// <summary>
-        /// обновление тэгов, если их изменили в настройках
+        /// Обновление тэгов, если их изменили в настройках
         /// </summary>
         public void UpdateTags(List<ProjectCollectionTag> tagsData)
         {
-            
+            if(_tagIds != null)
+                ShowTags();
+            CreateTagsMenu(tagsData);
         }
 
         private void ShowTags()
@@ -108,6 +110,12 @@ namespace ProjectExplorer.Controls
 
                 ShowTags();
             }
+            CreateTagsMenu(tagsData);
+        }
+
+        private void CreateTagsMenu(List<ProjectCollectionTag> tagsData)
+        {
+            MiTags.Items.Clear();
             foreach (var tag in tagsData)
             {
                 var newMenuItem = new MenuItem
@@ -121,7 +129,7 @@ namespace ProjectExplorer.Controls
                     var mi = (MenuItem) sender;
                     if (mi.IsChecked)
                     {
-                        if(_tagIds == null)
+                        if (_tagIds == null)
                             _tagIds = new Dictionary<int, ProjectCollectionTag>();
                         _tagIds.Add(tag.Id, tag);
                     }

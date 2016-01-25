@@ -17,6 +17,8 @@ namespace ProjectExplorer.Converters
         public object Convert(object value, Type targetType,
             object parameter, CultureInfo culture)
         {
+            if (value == null)
+                return Colors.LightGray;
             return ColorConverter.ConvertFromString(value as string);
         }
 

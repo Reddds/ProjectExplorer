@@ -17,7 +17,7 @@
                 <DataGridTemplateColumn Header="Цвет">
                     <DataGridTemplateColumn.CellTemplate>
                       <ItemContainerTemplate>
-                            <xctk:ColorPicker SelectedColor="{Binding Color, Converter={converters:TextToColorConverter}}"/>
+                            <xctk:ColorPicker SelectedColor="{Binding Color, Converter={converters:TextToColorConverter}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                       </ItemContainerTemplate>
 
                     </DataGridTemplateColumn.CellTemplate>

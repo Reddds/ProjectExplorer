@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
+using ProjectExplorer.Controls;
 using ProjectExplorer.Models;
 using ProjectExplorer.Windows;
 
@@ -27,6 +28,7 @@ namespace ProjectExplorer
         {
             InitializeComponent();
 
+            TbRootProjectDir.Text = Properties.Settings.Default.RootPath;
             if (File.Exists(CollectionFileName))
             {
                 _projectCollection = ProjectCollection.LoadFromFile(CollectionFileName);
@@ -226,7 +228,14 @@ namespace ProjectExplorer
 
         private void ScanFoldersClick(object sender, RoutedEventArgs e)
         {
+            if (
+                MessageBox.Show("Просканировать каталоги в поиске проектов и решений?", "Запуск сканирования",
+                    MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+                return;
+
             _rootDirPath = TbRootProjectDir.Text.Trim();
+            Properties.Settings.Default.RootPath = _rootDirPath;
+            Properties.Settings.Default.Save();
 
             if (string.IsNullOrEmpty(_rootDirPath))
             {
@@ -304,6 +313,16 @@ namespace ProjectExplorer
                 return;
             SaveCollection();
             ShowTags();
+            UpdateTagsOnAllItems();
+        }
+
+        private void UpdateTagsOnAllItems()
+        {
+            foreach (ListViewItem item in LvProjects.Items)
+            {
+                var collectionItem = item.Content as CollectionItem;
+                collectionItem?.UpdateTags(_projectCollection.Tags);
+            }
         }
 
         private void SaveCollection()
