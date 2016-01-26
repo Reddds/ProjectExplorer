@@ -10,9 +10,12 @@
             <RowDefinition Height="40" />
         </Grid.RowDefinitions>
         
-        <DataGrid x:Name="DgTags" MinRowHeight="10" AutoGenerateColumns="False">
+        <DataGrid x:Name="DgTags" MinRowHeight="10" AutoGenerateColumns="False" 
+                  RowEditEnding="DgTags_OnRowEditEnding" 
+                  BeginningEdit="DgTags_OnBeginningEdit"
+                  >
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Id" Binding="{Binding Id}" ClipboardContentBinding="{x:Null}"/>
+                <DataGridTextColumn Header="Id" Binding="{Binding Id, Mode=OneWay,NotifyOnTargetUpdated=True}" IsReadOnly="True" ClipboardContentBinding="{x:Null}"/>
                 <DataGridTextColumn Header="Название" Binding="{Binding Name}" ClipboardContentBinding="{x:Null}"/>
                 <DataGridTemplateColumn Header="Цвет">
                     <DataGridTemplateColumn.CellTemplate>
@@ -20,6 +23,14 @@
                             <xctk:ColorPicker SelectedColor="{Binding Color, Converter={converters:TextToColorConverter}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                       </ItemContainerTemplate>
 
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="Удалить">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Content="X"
+                            Command="Delete"/>
+                        </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
             </DataGrid.Columns>
