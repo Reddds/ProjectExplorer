@@ -10,72 +10,96 @@
     <xctk:BusyIndicator x:Name="BiLoading">
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="55"/>
+                <RowDefinition Height="80"/>
                 <RowDefinition/>
                 <RowDefinition/>
                 <RowDefinition Height="24"/>
             </Grid.RowDefinitions>
             <ToolBar>
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <StackPanel Orientation="Vertical" Margin="5,0">
 
+                            <CheckBox x:Name="CbShowSolutions" Style="{StaticResource TagCheckBoxStyle}" IsChecked="True" Click="CbShowSolutionsClicked">
+                                Решения
+                            </CheckBox>
+                            <CheckBox x:Name="CbShowProjects" Style="{StaticResource TagCheckBoxStyle}" IsChecked="True" Click="CbShowProjectsClicked">
+                                Проекты
+                            </CheckBox>
+                            <CheckBox x:Name="CbShowTagLess" Style="{StaticResource TagCheckBoxStyle}" Click="CbShowProjectsClicked">
+                                Без меток
+                            </CheckBox>
+                        </StackPanel>
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <RadioButton GroupName="TagsBool" Click="TagsBoolAddClick">И</RadioButton>
+                                <RadioButton GroupName="TagsBool" Margin="5,0" IsChecked="True" Click="TagsBoolOrClick">Или</RadioButton>
+                            </StackPanel>
+                            <WrapPanel x:Name="WpTags" MaxWidth="300">
+                                <WrapPanel.Resources>
+                                    <Style TargetType="{x:Type Label}">
+                                        <Setter Property="Background" Value="LightGray"></Setter>
+                                        <Setter Property="Padding" Value="2,0,2,1"></Setter>
+                                        <Setter Property="FontSize" Value="10"></Setter>
+                                        <Setter Property="Margin" Value="2"></Setter>
+                                    </Style>
+
+                                </WrapPanel.Resources>
+                                <CheckBox Style="{StaticResource TagCheckBoxStyle}">
+                                    <Label>lsdjflsf</Label>
+                                </CheckBox>
+                            </WrapPanel>
+                        </StackPanel>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Label>Поиск</Label>
+                        <TextBox x:Name="TbSearch" Width="200" TextChanged="TbSearchOnTextInput" FontSize="17"></TextBox>
+                        <Button Click="ClearFindClick">
+                            <Image Source="Assets/Images/clear.png" Height="22"></Image>
+                        </Button>
+                    </StackPanel>
+                </StackPanel>
+                <StackPanel Margin="5">
+                    <RadioButton GroupName="ViewStyle" IsChecked="True">Все</RadioButton>
+                    <RadioButton GroupName="ViewStyle">По папкам</RadioButton>
+                </StackPanel>
                 <Button Margin="5"
                         HorizontalAlignment="Left"  VerticalAlignment="Top" 
                     Click="ScanFoldersClick">
                     <StackPanel Orientation="Horizontal">
-                        <Image Source="Assets/Images/folderSearch.png"></Image>
+                        <Image Source="Assets/Images/folderSearch.png" Width="32"></Image>
                         <TextBlock  Margin="6,2,2,2">Сканировать папки <LineBreak/>в поисках проектов</TextBlock>
                     </StackPanel>
-                    
+
                 </Button>
                 <StackPanel Margin="2">
                     <TextBox x:Name="TbRootProjectDir" HorizontalAlignment="Left" Height="22"  TextWrapping="Wrap" Text="d:\Work\ISFCore\" VerticalAlignment="Top" Width="177"/>
-                    <Label x:Name="label" Content="Корневой каталог с проектами" HorizontalAlignment="Left"  VerticalAlignment="Top"/>
+                    <Label Content="Корневой каталог с проектами" HorizontalAlignment="Left"  VerticalAlignment="Top"/>
 
                 </StackPanel>
-                <StackPanel Orientation="Horizontal">
-                    <ToggleButton Background="White" BorderBrush="Black" FontSize="10" Height="20" RenderTransformOrigin="0.5,0.5">
-                        <ToggleButton.RenderTransform>
-                            <TransformGroup>
-
-                                <RotateTransform Angle="-90"/>
-                                <TranslateTransform/>
-                            </TransformGroup>
-                        </ToggleButton.RenderTransform>
-                        Без метки
-                    </ToggleButton>
-                    <WrapPanel x:Name="WpTags" MaxWidth="300">
-                        <WrapPanel.Resources>
-                            <Style TargetType="{x:Type Label}">
-                                <Setter Property="Background" Value="LightGray"></Setter>
-                                <Setter Property="Padding" Value="2,0,2,1"></Setter>
-                                <Setter Property="FontSize" Value="10"></Setter>
-                                <Setter Property="Margin" Value="2"></Setter>
-                            </Style>
-
-                        </WrapPanel.Resources>
-                        <CheckBox Style="{StaticResource TagCheckBoxStyle}">
-                            <Label>lsdjflsf</Label>
-                        </CheckBox>
-                    </WrapPanel>
-
-                </StackPanel>
-                <Button Click="OptionsClick">
+                <Button Click="OptionsClick" >
                     <Image Source="Assets/Images/settings.png" Width="32"></Image>
                 </Button>
             </ToolBar>
 
-            <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+            <StackPanel Grid.Row="1" Orientation="Horizontal">
+                <TreeView x:Name="TvFolders">
+                </TreeView>
+                <ScrollViewer x:Name="SvMainView" Grid.Row="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                 <!--            <WrapPanel x:Name="WpProjects" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True" />-->
                 <ListView x:Name="LvProjects" ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
                       ScrollViewer.VerticalScrollBarVisibility="Auto" 
                       ScrollViewer.CanContentScroll="True"
                        ContextMenuOpening="CmMainOpening">
                     <ListView.ContextMenu>
-                        <ContextMenu >
+                        <ContextMenu x:Name="CmMain">
                             <MenuItem Header="Показать Readme" Click="ShowReadmeClick"/>
                             <MenuItem Header="Открыть папку" Click="OpenFolderClick"/>
                             <Separator />
+                            <MenuItem Header="Обновить информацию" Click="UpdateInfoClick"/>
+                            <Separator />
                             <MenuItem Header="Удалить" Click="RemoveItemClick"/>
-
+                            <Separator />
                         </ContextMenu>
                     </ListView.ContextMenu>
                     <ListView.ItemsPanel>
@@ -86,7 +110,8 @@
                 </ListView>
 
             </ScrollViewer >
-            <TextBox x:Name="TbTest" Grid.Row="2"></TextBox>
+            </StackPanel>
+                <TextBox x:Name="TbTest" Grid.Row="2"></TextBox>
             <StatusBar Grid.Row="3">
                 <StackPanel x:Name="SpScanning" Visibility="Hidden" Orientation="Horizontal">
                     <Label Padding="2,0" FontWeight="Bold">Сканируется:</Label>

@@ -16,7 +16,7 @@
             </xs:sequence>
           </xs:complexType>
         </xs:element>
-        
+
         <xs:element maxOccurs="unbounded" name="Category">
           <xs:complexType mixed="true">
             <xs:sequence minOccurs="0">
@@ -26,48 +26,39 @@
             <xs:attribute name="ParentId" type="xs:int" use="optional" default="-1" />
           </xs:complexType>
         </xs:element>
-        <xs:element maxOccurs="unbounded" name="Solution">
-          <xs:complexType>
-            <xs:simpleContent>
-              <xs:extension base="xs:string">
-                <xs:attribute name="CategoryId" type="xs:int" use="required" />
-                <xs:attribute name="Name" type="xs:string" use="required" />
-                <xs:attribute name="Tags" type="xs:string" use="required">
-                  <xs:annotation>
-                    <xs:documentation>
-                      Тэги (ID) через ";"
-                    </xs:documentation>
-                  </xs:annotation>
-                </xs:attribute>
-                <xs:attribute name="FullPath" type="xs:string" use="required" />
-                <xs:attribute name="ImagePath" type="xs:string" use="required" />
-                <xs:attribute name="ReadmePath" type="xs:string" use="required" />
-              </xs:extension>
-            </xs:simpleContent>
-          </xs:complexType>
-        </xs:element>
-        <xs:element maxOccurs="unbounded" name="Project">
-          <xs:complexType>
-            <xs:simpleContent>
-              <xs:extension base="xs:string">
-                <xs:attribute name="CategoryId" type="xs:int" use="required" />
-                <xs:attribute name="Name" type="xs:string" use="required" />
-                <xs:attribute name="Tags" type="xs:string" use="required">
-                  <xs:annotation>
-                    <xs:documentation>
-                      Тэги через ";"
-                    </xs:documentation>
-                  </xs:annotation>
-                </xs:attribute>
-                <xs:attribute name="FullPath" type="xs:string" use="required" />
-                <xs:attribute name="ImagePath" type="xs:string" use="required" />
-                <xs:attribute name="ReadmePath" type="xs:string" use="required" />
-              </xs:extension>
-            </xs:simpleContent>
-          </xs:complexType>
-        </xs:element>
+
+        <xs:element maxOccurs="unbounded" name="Solution" type="SolutionBase" />
+        <xs:element maxOccurs="unbounded" name="Project" type="ProjectBase" />
 
       </xs:sequence>
+      <xs:attribute name="RootDir" type="xs:string" use="required" />
     </xs:complexType>
   </xs:element>
+
+  <xs:complexType name="ProjectBase">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="CategoryId" type="xs:int" use="required" />
+        <xs:attribute name="Name" type="xs:string" use="required" />
+        <xs:attribute name="Tags" type="xs:string" use="required">
+          <xs:annotation>
+            <xs:documentation>
+              Тэги через ";"
+            </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="FullPath" type="xs:string" use="required" />
+        <xs:attribute name="ImagePath" type="xs:string" use="required" />
+        <xs:attribute name="ReadmePath" type="xs:string" use="required" />
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:complexType name="SolutionBase">
+    <xs:simpleContent>
+      <xs:extension base="ProjectBase">
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
 </xs:schema>

@@ -32,16 +32,18 @@ namespace ProjectExplorer.Models
         
         private List<ProjectCollectionCategory> _category;
         
-        private List<ProjectCollectionSolution> _solution;
+        private List<SolutionBase> _solution;
         
-        private List<ProjectCollectionProject> _project;
+        private List<ProjectBase> _project;
+        
+        private string _rootDir;
         
         private static XmlSerializer serializer;
         
         public ProjectCollection()
         {
-            this._project = new List<ProjectCollectionProject>();
-            this._solution = new List<ProjectCollectionSolution>();
+            this._project = new List<ProjectBase>();
+            this._solution = new List<SolutionBase>();
             this._category = new List<ProjectCollectionCategory>();
             this._tags = new List<ProjectCollectionTag>();
         }
@@ -73,7 +75,7 @@ namespace ProjectExplorer.Models
         }
         
         [System.Xml.Serialization.XmlElementAttribute("Solution")]
-        public List<ProjectCollectionSolution> Solution
+        public List<SolutionBase> Solution
         {
             get
             {
@@ -86,7 +88,7 @@ namespace ProjectExplorer.Models
         }
         
         [System.Xml.Serialization.XmlElementAttribute("Project")]
-        public List<ProjectCollectionProject> Project
+        public List<ProjectBase> Project
         {
             get
             {
@@ -95,6 +97,19 @@ namespace ProjectExplorer.Models
             set
             {
                 this._project = value;
+            }
+        }
+        
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public string RootDir
+        {
+            get
+            {
+                return this._rootDir;
+            }
+            set
+            {
+                this._rootDir = value;
             }
         }
         
@@ -541,6 +556,518 @@ namespace ProjectExplorer.Models
         }
     }
     
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(SolutionBase))]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1055.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class ProjectBase
+    {
+        
+        private int _categoryId;
+        
+        private string _name;
+        
+        private string _tags;
+        
+        private string _fullPath;
+        
+        private string _imagePath;
+        
+        private string _readmePath;
+        
+        private string _value;
+        
+        private static XmlSerializer serializer;
+        
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public int CategoryId
+        {
+            get
+            {
+                return this._categoryId;
+            }
+            set
+            {
+                this._categoryId = value;
+            }
+        }
+        
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public string Name
+        {
+            get
+            {
+                return this._name;
+            }
+            set
+            {
+                this._name = value;
+            }
+        }
+        
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public string Tags
+        {
+            get
+            {
+                return this._tags;
+            }
+            set
+            {
+                this._tags = value;
+            }
+        }
+        
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public string FullPath
+        {
+            get
+            {
+                return this._fullPath;
+            }
+            set
+            {
+                this._fullPath = value;
+            }
+        }
+        
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public string ImagePath
+        {
+            get
+            {
+                return this._imagePath;
+            }
+            set
+            {
+                this._imagePath = value;
+            }
+        }
+        
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public string ReadmePath
+        {
+            get
+            {
+                return this._readmePath;
+            }
+            set
+            {
+                this._readmePath = value;
+            }
+        }
+        
+        [System.Xml.Serialization.XmlTextAttribute()]
+        public string Value
+        {
+            get
+            {
+                return this._value;
+            }
+            set
+            {
+                this._value = value;
+            }
+        }
+        
+        private static XmlSerializer Serializer
+        {
+            get
+            {
+                if ((serializer == null))
+                {
+                    serializer = new XmlSerializerFactory().CreateSerializer(typeof(ProjectBase));
+                }
+                return serializer;
+            }
+        }
+        
+        #region Serialize/Deserialize
+        /// <summary>
+        /// Serializes current ProjectBase object into an XML string
+        /// </summary>
+        /// <returns>string XML value</returns>
+        public virtual string Serialize()
+        {
+            System.IO.StreamReader streamReader = null;
+            System.IO.MemoryStream memoryStream = null;
+            try
+            {
+                memoryStream = new System.IO.MemoryStream();
+                System.Xml.XmlWriterSettings xmlWriterSettings = new System.Xml.XmlWriterSettings();
+                xmlWriterSettings.Indent = true;
+                System.Xml.XmlWriter xmlWriter = XmlWriter.Create(memoryStream, xmlWriterSettings);
+                Serializer.Serialize(xmlWriter, this);
+                memoryStream.Seek(0, System.IO.SeekOrigin.Begin);
+                streamReader = new System.IO.StreamReader(memoryStream);
+                return streamReader.ReadToEnd();
+            }
+            finally
+            {
+                if ((streamReader != null))
+                {
+                    streamReader.Dispose();
+                }
+                if ((memoryStream != null))
+                {
+                    memoryStream.Dispose();
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Deserializes workflow markup into an ProjectBase object
+        /// </summary>
+        /// <param name="input">string workflow markup to deserialize</param>
+        /// <param name="obj">Output ProjectBase object</param>
+        /// <param name="exception">output Exception value if deserialize failed</param>
+        /// <returns>true if this Serializer can deserialize the object; otherwise, false</returns>
+        public static bool Deserialize(string input, out ProjectBase obj, out System.Exception exception)
+        {
+            exception = null;
+            obj = default(ProjectBase);
+            try
+            {
+                obj = Deserialize(input);
+                return true;
+            }
+            catch (System.Exception ex)
+            {
+                exception = ex;
+                return false;
+            }
+        }
+        
+        public static bool Deserialize(string input, out ProjectBase obj)
+        {
+            System.Exception exception = null;
+            return Deserialize(input, out obj, out exception);
+        }
+        
+        public static ProjectBase Deserialize(string input)
+        {
+            System.IO.StringReader stringReader = null;
+            try
+            {
+                stringReader = new System.IO.StringReader(input);
+                return ((ProjectBase)(Serializer.Deserialize(System.Xml.XmlReader.Create(stringReader))));
+            }
+            finally
+            {
+                if ((stringReader != null))
+                {
+                    stringReader.Dispose();
+                }
+            }
+        }
+        
+        public static ProjectBase Deserialize(System.IO.Stream s)
+        {
+            return ((ProjectBase)(Serializer.Deserialize(s)));
+        }
+        #endregion
+        
+        /// <summary>
+        /// Serializes current ProjectBase object into file
+        /// </summary>
+        /// <param name="fileName">full path of outupt xml file</param>
+        /// <param name="exception">output Exception value if failed</param>
+        /// <returns>true if can serialize and save into file; otherwise, false</returns>
+        public virtual bool SaveToFile(string fileName, out System.Exception exception)
+        {
+            exception = null;
+            try
+            {
+                SaveToFile(fileName);
+                return true;
+            }
+            catch (System.Exception e)
+            {
+                exception = e;
+                return false;
+            }
+        }
+        
+        public virtual void SaveToFile(string fileName)
+        {
+            System.IO.StreamWriter streamWriter = null;
+            try
+            {
+                string xmlString = Serialize();
+                System.IO.FileInfo xmlFile = new System.IO.FileInfo(fileName);
+                streamWriter = xmlFile.CreateText();
+                streamWriter.WriteLine(xmlString);
+                streamWriter.Close();
+            }
+            finally
+            {
+                if ((streamWriter != null))
+                {
+                    streamWriter.Dispose();
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Deserializes xml markup from file into an ProjectBase object
+        /// </summary>
+        /// <param name="fileName">string xml file to load and deserialize</param>
+        /// <param name="obj">Output ProjectBase object</param>
+        /// <param name="exception">output Exception value if deserialize failed</param>
+        /// <returns>true if this Serializer can deserialize the object; otherwise, false</returns>
+        public static bool LoadFromFile(string fileName, out ProjectBase obj, out System.Exception exception)
+        {
+            exception = null;
+            obj = default(ProjectBase);
+            try
+            {
+                obj = LoadFromFile(fileName);
+                return true;
+            }
+            catch (System.Exception ex)
+            {
+                exception = ex;
+                return false;
+            }
+        }
+        
+        public static bool LoadFromFile(string fileName, out ProjectBase obj)
+        {
+            System.Exception exception = null;
+            return LoadFromFile(fileName, out obj, out exception);
+        }
+        
+        public static ProjectBase LoadFromFile(string fileName)
+        {
+            System.IO.FileStream file = null;
+            System.IO.StreamReader sr = null;
+            try
+            {
+                file = new System.IO.FileStream(fileName, FileMode.Open, FileAccess.Read);
+                sr = new System.IO.StreamReader(file);
+                string xmlString = sr.ReadToEnd();
+                sr.Close();
+                file.Close();
+                return Deserialize(xmlString);
+            }
+            finally
+            {
+                if ((file != null))
+                {
+                    file.Dispose();
+                }
+                if ((sr != null))
+                {
+                    sr.Dispose();
+                }
+            }
+        }
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1055.0")]
+    [System.SerializableAttribute()]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public partial class SolutionBase : ProjectBase
+    {
+        
+        private static XmlSerializer serializer;
+        
+        private static XmlSerializer Serializer
+        {
+            get
+            {
+                if ((serializer == null))
+                {
+                    serializer = new XmlSerializerFactory().CreateSerializer(typeof(SolutionBase));
+                }
+                return serializer;
+            }
+        }
+        
+        #region Serialize/Deserialize
+        /// <summary>
+        /// Serializes current SolutionBase object into an XML string
+        /// </summary>
+        /// <returns>string XML value</returns>
+        public virtual string Serialize()
+        {
+            System.IO.StreamReader streamReader = null;
+            System.IO.MemoryStream memoryStream = null;
+            try
+            {
+                memoryStream = new System.IO.MemoryStream();
+                System.Xml.XmlWriterSettings xmlWriterSettings = new System.Xml.XmlWriterSettings();
+                xmlWriterSettings.Indent = true;
+                System.Xml.XmlWriter xmlWriter = XmlWriter.Create(memoryStream, xmlWriterSettings);
+                Serializer.Serialize(xmlWriter, this);
+                memoryStream.Seek(0, System.IO.SeekOrigin.Begin);
+                streamReader = new System.IO.StreamReader(memoryStream);
+                return streamReader.ReadToEnd();
+            }
+            finally
+            {
+                if ((streamReader != null))
+                {
+                    streamReader.Dispose();
+                }
+                if ((memoryStream != null))
+                {
+                    memoryStream.Dispose();
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Deserializes workflow markup into an SolutionBase object
+        /// </summary>
+        /// <param name="input">string workflow markup to deserialize</param>
+        /// <param name="obj">Output SolutionBase object</param>
+        /// <param name="exception">output Exception value if deserialize failed</param>
+        /// <returns>true if this Serializer can deserialize the object; otherwise, false</returns>
+        public static bool Deserialize(string input, out SolutionBase obj, out System.Exception exception)
+        {
+            exception = null;
+            obj = default(SolutionBase);
+            try
+            {
+                obj = Deserialize(input);
+                return true;
+            }
+            catch (System.Exception ex)
+            {
+                exception = ex;
+                return false;
+            }
+        }
+        
+        public static bool Deserialize(string input, out SolutionBase obj)
+        {
+            System.Exception exception = null;
+            return Deserialize(input, out obj, out exception);
+        }
+        
+        public new static SolutionBase Deserialize(string input)
+        {
+            System.IO.StringReader stringReader = null;
+            try
+            {
+                stringReader = new System.IO.StringReader(input);
+                return ((SolutionBase)(Serializer.Deserialize(System.Xml.XmlReader.Create(stringReader))));
+            }
+            finally
+            {
+                if ((stringReader != null))
+                {
+                    stringReader.Dispose();
+                }
+            }
+        }
+        
+        public static SolutionBase Deserialize(System.IO.Stream s)
+        {
+            return ((SolutionBase)(Serializer.Deserialize(s)));
+        }
+        #endregion
+        
+        /// <summary>
+        /// Serializes current SolutionBase object into file
+        /// </summary>
+        /// <param name="fileName">full path of outupt xml file</param>
+        /// <param name="exception">output Exception value if failed</param>
+        /// <returns>true if can serialize and save into file; otherwise, false</returns>
+        public virtual bool SaveToFile(string fileName, out System.Exception exception)
+        {
+            exception = null;
+            try
+            {
+                SaveToFile(fileName);
+                return true;
+            }
+            catch (System.Exception e)
+            {
+                exception = e;
+                return false;
+            }
+        }
+        
+        public virtual void SaveToFile(string fileName)
+        {
+            System.IO.StreamWriter streamWriter = null;
+            try
+            {
+                string xmlString = Serialize();
+                System.IO.FileInfo xmlFile = new System.IO.FileInfo(fileName);
+                streamWriter = xmlFile.CreateText();
+                streamWriter.WriteLine(xmlString);
+                streamWriter.Close();
+            }
+            finally
+            {
+                if ((streamWriter != null))
+                {
+                    streamWriter.Dispose();
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Deserializes xml markup from file into an SolutionBase object
+        /// </summary>
+        /// <param name="fileName">string xml file to load and deserialize</param>
+        /// <param name="obj">Output SolutionBase object</param>
+        /// <param name="exception">output Exception value if deserialize failed</param>
+        /// <returns>true if this Serializer can deserialize the object; otherwise, false</returns>
+        public static bool LoadFromFile(string fileName, out SolutionBase obj, out System.Exception exception)
+        {
+            exception = null;
+            obj = default(SolutionBase);
+            try
+            {
+                obj = LoadFromFile(fileName);
+                return true;
+            }
+            catch (System.Exception ex)
+            {
+                exception = ex;
+                return false;
+            }
+        }
+        
+        public static bool LoadFromFile(string fileName, out SolutionBase obj)
+        {
+            System.Exception exception = null;
+            return LoadFromFile(fileName, out obj, out exception);
+        }
+        
+        public new static SolutionBase LoadFromFile(string fileName)
+        {
+            System.IO.FileStream file = null;
+            System.IO.StreamReader sr = null;
+            try
+            {
+                file = new System.IO.FileStream(fileName, FileMode.Open, FileAccess.Read);
+                sr = new System.IO.StreamReader(file);
+                string xmlString = sr.ReadToEnd();
+                sr.Close();
+                file.Close();
+                return Deserialize(xmlString);
+            }
+            finally
+            {
+                if ((file != null))
+                {
+                    file.Dispose();
+                }
+                if ((sr != null))
+                {
+                    sr.Dispose();
+                }
+            }
+        }
+    }
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1055.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -786,624 +1313,6 @@ namespace ProjectExplorer.Models
         }
         
         public static ProjectCollectionCategory LoadFromFile(string fileName)
-        {
-            System.IO.FileStream file = null;
-            System.IO.StreamReader sr = null;
-            try
-            {
-                file = new System.IO.FileStream(fileName, FileMode.Open, FileAccess.Read);
-                sr = new System.IO.StreamReader(file);
-                string xmlString = sr.ReadToEnd();
-                sr.Close();
-                file.Close();
-                return Deserialize(xmlString);
-            }
-            finally
-            {
-                if ((file != null))
-                {
-                    file.Dispose();
-                }
-                if ((sr != null))
-                {
-                    sr.Dispose();
-                }
-            }
-        }
-    }
-    
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1055.0")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true)]
-    public partial class ProjectCollectionSolution
-    {
-        
-        private int _categoryId;
-        
-        private string _name;
-        
-        private string _tags;
-        
-        private string _fullPath;
-        
-        private string _imagePath;
-        
-        private string _readmePath;
-        
-        private string _value;
-        
-        private static XmlSerializer serializer;
-        
-        [System.Xml.Serialization.XmlAttributeAttribute()]
-        public int CategoryId
-        {
-            get
-            {
-                return this._categoryId;
-            }
-            set
-            {
-                this._categoryId = value;
-            }
-        }
-        
-        [System.Xml.Serialization.XmlAttributeAttribute()]
-        public string Name
-        {
-            get
-            {
-                return this._name;
-            }
-            set
-            {
-                this._name = value;
-            }
-        }
-        
-        [System.Xml.Serialization.XmlAttributeAttribute()]
-        public string Tags
-        {
-            get
-            {
-                return this._tags;
-            }
-            set
-            {
-                this._tags = value;
-            }
-        }
-        
-        [System.Xml.Serialization.XmlAttributeAttribute()]
-        public string FullPath
-        {
-            get
-            {
-                return this._fullPath;
-            }
-            set
-            {
-                this._fullPath = value;
-            }
-        }
-        
-        [System.Xml.Serialization.XmlAttributeAttribute()]
-        public string ImagePath
-        {
-            get
-            {
-                return this._imagePath;
-            }
-            set
-            {
-                this._imagePath = value;
-            }
-        }
-        
-        [System.Xml.Serialization.XmlAttributeAttribute()]
-        public string ReadmePath
-        {
-            get
-            {
-                return this._readmePath;
-            }
-            set
-            {
-                this._readmePath = value;
-            }
-        }
-        
-        [System.Xml.Serialization.XmlTextAttribute()]
-        public string Value
-        {
-            get
-            {
-                return this._value;
-            }
-            set
-            {
-                this._value = value;
-            }
-        }
-        
-        private static XmlSerializer Serializer
-        {
-            get
-            {
-                if ((serializer == null))
-                {
-                    serializer = new XmlSerializerFactory().CreateSerializer(typeof(ProjectCollectionSolution));
-                }
-                return serializer;
-            }
-        }
-        
-        #region Serialize/Deserialize
-        /// <summary>
-        /// Serializes current ProjectCollectionSolution object into an XML string
-        /// </summary>
-        /// <returns>string XML value</returns>
-        public virtual string Serialize()
-        {
-            System.IO.StreamReader streamReader = null;
-            System.IO.MemoryStream memoryStream = null;
-            try
-            {
-                memoryStream = new System.IO.MemoryStream();
-                System.Xml.XmlWriterSettings xmlWriterSettings = new System.Xml.XmlWriterSettings();
-                xmlWriterSettings.Indent = true;
-                System.Xml.XmlWriter xmlWriter = XmlWriter.Create(memoryStream, xmlWriterSettings);
-                Serializer.Serialize(xmlWriter, this);
-                memoryStream.Seek(0, System.IO.SeekOrigin.Begin);
-                streamReader = new System.IO.StreamReader(memoryStream);
-                return streamReader.ReadToEnd();
-            }
-            finally
-            {
-                if ((streamReader != null))
-                {
-                    streamReader.Dispose();
-                }
-                if ((memoryStream != null))
-                {
-                    memoryStream.Dispose();
-                }
-            }
-        }
-        
-        /// <summary>
-        /// Deserializes workflow markup into an ProjectCollectionSolution object
-        /// </summary>
-        /// <param name="input">string workflow markup to deserialize</param>
-        /// <param name="obj">Output ProjectCollectionSolution object</param>
-        /// <param name="exception">output Exception value if deserialize failed</param>
-        /// <returns>true if this Serializer can deserialize the object; otherwise, false</returns>
-        public static bool Deserialize(string input, out ProjectCollectionSolution obj, out System.Exception exception)
-        {
-            exception = null;
-            obj = default(ProjectCollectionSolution);
-            try
-            {
-                obj = Deserialize(input);
-                return true;
-            }
-            catch (System.Exception ex)
-            {
-                exception = ex;
-                return false;
-            }
-        }
-        
-        public static bool Deserialize(string input, out ProjectCollectionSolution obj)
-        {
-            System.Exception exception = null;
-            return Deserialize(input, out obj, out exception);
-        }
-        
-        public static ProjectCollectionSolution Deserialize(string input)
-        {
-            System.IO.StringReader stringReader = null;
-            try
-            {
-                stringReader = new System.IO.StringReader(input);
-                return ((ProjectCollectionSolution)(Serializer.Deserialize(System.Xml.XmlReader.Create(stringReader))));
-            }
-            finally
-            {
-                if ((stringReader != null))
-                {
-                    stringReader.Dispose();
-                }
-            }
-        }
-        
-        public static ProjectCollectionSolution Deserialize(System.IO.Stream s)
-        {
-            return ((ProjectCollectionSolution)(Serializer.Deserialize(s)));
-        }
-        #endregion
-        
-        /// <summary>
-        /// Serializes current ProjectCollectionSolution object into file
-        /// </summary>
-        /// <param name="fileName">full path of outupt xml file</param>
-        /// <param name="exception">output Exception value if failed</param>
-        /// <returns>true if can serialize and save into file; otherwise, false</returns>
-        public virtual bool SaveToFile(string fileName, out System.Exception exception)
-        {
-            exception = null;
-            try
-            {
-                SaveToFile(fileName);
-                return true;
-            }
-            catch (System.Exception e)
-            {
-                exception = e;
-                return false;
-            }
-        }
-        
-        public virtual void SaveToFile(string fileName)
-        {
-            System.IO.StreamWriter streamWriter = null;
-            try
-            {
-                string xmlString = Serialize();
-                System.IO.FileInfo xmlFile = new System.IO.FileInfo(fileName);
-                streamWriter = xmlFile.CreateText();
-                streamWriter.WriteLine(xmlString);
-                streamWriter.Close();
-            }
-            finally
-            {
-                if ((streamWriter != null))
-                {
-                    streamWriter.Dispose();
-                }
-            }
-        }
-        
-        /// <summary>
-        /// Deserializes xml markup from file into an ProjectCollectionSolution object
-        /// </summary>
-        /// <param name="fileName">string xml file to load and deserialize</param>
-        /// <param name="obj">Output ProjectCollectionSolution object</param>
-        /// <param name="exception">output Exception value if deserialize failed</param>
-        /// <returns>true if this Serializer can deserialize the object; otherwise, false</returns>
-        public static bool LoadFromFile(string fileName, out ProjectCollectionSolution obj, out System.Exception exception)
-        {
-            exception = null;
-            obj = default(ProjectCollectionSolution);
-            try
-            {
-                obj = LoadFromFile(fileName);
-                return true;
-            }
-            catch (System.Exception ex)
-            {
-                exception = ex;
-                return false;
-            }
-        }
-        
-        public static bool LoadFromFile(string fileName, out ProjectCollectionSolution obj)
-        {
-            System.Exception exception = null;
-            return LoadFromFile(fileName, out obj, out exception);
-        }
-        
-        public static ProjectCollectionSolution LoadFromFile(string fileName)
-        {
-            System.IO.FileStream file = null;
-            System.IO.StreamReader sr = null;
-            try
-            {
-                file = new System.IO.FileStream(fileName, FileMode.Open, FileAccess.Read);
-                sr = new System.IO.StreamReader(file);
-                string xmlString = sr.ReadToEnd();
-                sr.Close();
-                file.Close();
-                return Deserialize(xmlString);
-            }
-            finally
-            {
-                if ((file != null))
-                {
-                    file.Dispose();
-                }
-                if ((sr != null))
-                {
-                    sr.Dispose();
-                }
-            }
-        }
-    }
-    
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1055.0")]
-    [System.SerializableAttribute()]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType=true)]
-    public partial class ProjectCollectionProject
-    {
-        
-        private int _categoryId;
-        
-        private string _name;
-        
-        private string _tags;
-        
-        private string _fullPath;
-        
-        private string _imagePath;
-        
-        private string _readmePath;
-        
-        private string _value;
-        
-        private static XmlSerializer serializer;
-        
-        [System.Xml.Serialization.XmlAttributeAttribute()]
-        public int CategoryId
-        {
-            get
-            {
-                return this._categoryId;
-            }
-            set
-            {
-                this._categoryId = value;
-            }
-        }
-        
-        [System.Xml.Serialization.XmlAttributeAttribute()]
-        public string Name
-        {
-            get
-            {
-                return this._name;
-            }
-            set
-            {
-                this._name = value;
-            }
-        }
-        
-        [System.Xml.Serialization.XmlAttributeAttribute()]
-        public string Tags
-        {
-            get
-            {
-                return this._tags;
-            }
-            set
-            {
-                this._tags = value;
-            }
-        }
-        
-        [System.Xml.Serialization.XmlAttributeAttribute()]
-        public string FullPath
-        {
-            get
-            {
-                return this._fullPath;
-            }
-            set
-            {
-                this._fullPath = value;
-            }
-        }
-        
-        [System.Xml.Serialization.XmlAttributeAttribute()]
-        public string ImagePath
-        {
-            get
-            {
-                return this._imagePath;
-            }
-            set
-            {
-                this._imagePath = value;
-            }
-        }
-        
-        [System.Xml.Serialization.XmlAttributeAttribute()]
-        public string ReadmePath
-        {
-            get
-            {
-                return this._readmePath;
-            }
-            set
-            {
-                this._readmePath = value;
-            }
-        }
-        
-        [System.Xml.Serialization.XmlTextAttribute()]
-        public string Value
-        {
-            get
-            {
-                return this._value;
-            }
-            set
-            {
-                this._value = value;
-            }
-        }
-        
-        private static XmlSerializer Serializer
-        {
-            get
-            {
-                if ((serializer == null))
-                {
-                    serializer = new XmlSerializerFactory().CreateSerializer(typeof(ProjectCollectionProject));
-                }
-                return serializer;
-            }
-        }
-        
-        #region Serialize/Deserialize
-        /// <summary>
-        /// Serializes current ProjectCollectionProject object into an XML string
-        /// </summary>
-        /// <returns>string XML value</returns>
-        public virtual string Serialize()
-        {
-            System.IO.StreamReader streamReader = null;
-            System.IO.MemoryStream memoryStream = null;
-            try
-            {
-                memoryStream = new System.IO.MemoryStream();
-                System.Xml.XmlWriterSettings xmlWriterSettings = new System.Xml.XmlWriterSettings();
-                xmlWriterSettings.Indent = true;
-                System.Xml.XmlWriter xmlWriter = XmlWriter.Create(memoryStream, xmlWriterSettings);
-                Serializer.Serialize(xmlWriter, this);
-                memoryStream.Seek(0, System.IO.SeekOrigin.Begin);
-                streamReader = new System.IO.StreamReader(memoryStream);
-                return streamReader.ReadToEnd();
-            }
-            finally
-            {
-                if ((streamReader != null))
-                {
-                    streamReader.Dispose();
-                }
-                if ((memoryStream != null))
-                {
-                    memoryStream.Dispose();
-                }
-            }
-        }
-        
-        /// <summary>
-        /// Deserializes workflow markup into an ProjectCollectionProject object
-        /// </summary>
-        /// <param name="input">string workflow markup to deserialize</param>
-        /// <param name="obj">Output ProjectCollectionProject object</param>
-        /// <param name="exception">output Exception value if deserialize failed</param>
-        /// <returns>true if this Serializer can deserialize the object; otherwise, false</returns>
-        public static bool Deserialize(string input, out ProjectCollectionProject obj, out System.Exception exception)
-        {
-            exception = null;
-            obj = default(ProjectCollectionProject);
-            try
-            {
-                obj = Deserialize(input);
-                return true;
-            }
-            catch (System.Exception ex)
-            {
-                exception = ex;
-                return false;
-            }
-        }
-        
-        public static bool Deserialize(string input, out ProjectCollectionProject obj)
-        {
-            System.Exception exception = null;
-            return Deserialize(input, out obj, out exception);
-        }
-        
-        public static ProjectCollectionProject Deserialize(string input)
-        {
-            System.IO.StringReader stringReader = null;
-            try
-            {
-                stringReader = new System.IO.StringReader(input);
-                return ((ProjectCollectionProject)(Serializer.Deserialize(System.Xml.XmlReader.Create(stringReader))));
-            }
-            finally
-            {
-                if ((stringReader != null))
-                {
-                    stringReader.Dispose();
-                }
-            }
-        }
-        
-        public static ProjectCollectionProject Deserialize(System.IO.Stream s)
-        {
-            return ((ProjectCollectionProject)(Serializer.Deserialize(s)));
-        }
-        #endregion
-        
-        /// <summary>
-        /// Serializes current ProjectCollectionProject object into file
-        /// </summary>
-        /// <param name="fileName">full path of outupt xml file</param>
-        /// <param name="exception">output Exception value if failed</param>
-        /// <returns>true if can serialize and save into file; otherwise, false</returns>
-        public virtual bool SaveToFile(string fileName, out System.Exception exception)
-        {
-            exception = null;
-            try
-            {
-                SaveToFile(fileName);
-                return true;
-            }
-            catch (System.Exception e)
-            {
-                exception = e;
-                return false;
-            }
-        }
-        
-        public virtual void SaveToFile(string fileName)
-        {
-            System.IO.StreamWriter streamWriter = null;
-            try
-            {
-                string xmlString = Serialize();
-                System.IO.FileInfo xmlFile = new System.IO.FileInfo(fileName);
-                streamWriter = xmlFile.CreateText();
-                streamWriter.WriteLine(xmlString);
-                streamWriter.Close();
-            }
-            finally
-            {
-                if ((streamWriter != null))
-                {
-                    streamWriter.Dispose();
-                }
-            }
-        }
-        
-        /// <summary>
-        /// Deserializes xml markup from file into an ProjectCollectionProject object
-        /// </summary>
-        /// <param name="fileName">string xml file to load and deserialize</param>
-        /// <param name="obj">Output ProjectCollectionProject object</param>
-        /// <param name="exception">output Exception value if deserialize failed</param>
-        /// <returns>true if this Serializer can deserialize the object; otherwise, false</returns>
-        public static bool LoadFromFile(string fileName, out ProjectCollectionProject obj, out System.Exception exception)
-        {
-            exception = null;
-            obj = default(ProjectCollectionProject);
-            try
-            {
-                obj = LoadFromFile(fileName);
-                return true;
-            }
-            catch (System.Exception ex)
-            {
-                exception = ex;
-                return false;
-            }
-        }
-        
-        public static bool LoadFromFile(string fileName, out ProjectCollectionProject obj)
-        {
-            System.Exception exception = null;
-            return LoadFromFile(fileName, out obj, out exception);
-        }
-        
-        public static ProjectCollectionProject LoadFromFile(string fileName)
         {
             System.IO.FileStream file = null;
             System.IO.StreamReader sr = null;

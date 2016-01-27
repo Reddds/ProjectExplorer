@@ -1,13 +1,8 @@
 ﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Data;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using ProjectExplorer.Models;
-using Xceed.Wpf.DataGrid;
 
 namespace ProjectExplorer.Windows
 {
@@ -52,7 +47,7 @@ namespace ProjectExplorer.Windows
                 var found = _original.FirstOrDefault(t => t.Id == tag.Id);
                 if (found == null)
                 {
-                    found = new ProjectCollectionTag();
+                    found = new ProjectCollectionTag {Id = tag.Id};
                     _original.Add(found);
                 }
                 found.Name = tag.Name;
@@ -88,15 +83,11 @@ namespace ProjectExplorer.Windows
 
             var curRow = e.Row.DataContext as ProjectCollectionTag;
 
-
             if (curRow?.Id == 0)
             {
                 var tags = (List<ProjectCollectionTag>)dg.ItemsSource;
                 curRow.Id = tags.Max(t => t.Id) + 1;
-
             }
-
-
         }
     }
 }

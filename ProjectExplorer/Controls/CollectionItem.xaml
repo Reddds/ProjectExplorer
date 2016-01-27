@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:ProjectExplorer"
              mc:Ignorable="d" 
              Width="200" Height="150"
-             Margin="5"
+             Margin="2"
              Background="AliceBlue">
 
     <Grid>
@@ -26,12 +26,8 @@
 
         <Label Grid.Row="1" x:Name="LName" />
         <Border Grid.Row="2" Background="Linen">
-            <Border.ContextMenu>
-                <ContextMenu x:Name="MiTags">
-                </ContextMenu>
-            </Border.ContextMenu>
 
-        <WrapPanel x:Name="WpTags">
+            <WrapPanel x:Name="WpTags">
             <WrapPanel.Resources>
                 <Brush x:Key="HigginsBrush">#B39DDB</Brush>
                 <Style TargetType="Label">
