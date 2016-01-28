@@ -5,12 +5,15 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
+using Ionic.Zip;
+using MarkdownSharp;
 using ProjectExplorer.Controls;
 using ProjectExplorer.Models;
 using ProjectExplorer.Windows;
@@ -27,7 +30,7 @@ namespace ProjectExplorer
         private string _rootDirPath;
         readonly ProjectCollection _projectCollection;
         private readonly CollectionViewSource _viewCollection;
-        private readonly List<ListViewItem> _listViewItems;
+        private readonly List<CollectionItem> _collectionItems;
         /// <summary>
         /// Искать по тегам, чтобы все теги были включены (true), или нет
         /// </summary>
@@ -35,11 +38,19 @@ namespace ProjectExplorer
 
         private string _findText = null;
 
+        enum ViewModes
+        {
+            All,
+            Folder
+        }
+
+        private ViewModes _viewMode;
+
         public MainWindow()
         {
             InitializeComponent();
 
-            _listViewItems = new List<ListViewItem>();
+            _collectionItems = new List<CollectionItem>();
             _viewCollection = new CollectionViewSource();
             _viewCollection.Filter += ViewCollectionFilter;
 
@@ -55,16 +66,17 @@ namespace ProjectExplorer
                 TbRootProjectDir.Text = Properties.Settings.Default.RootPath;
                 _projectCollection = new ProjectCollection();
             }
-            _viewCollection.Source = _listViewItems;
+            _viewCollection.Source = _collectionItems;
             LvProjects.ItemsSource = _viewCollection.View;
 
+            CreateTree();
         }
 
         private void ViewCollectionFilter(object sender, FilterEventArgs e)
         {
-            var lvi = e.Item as ListViewItem;
+            var collectionItem = e.Item as CollectionItem;// CListViewItem
 
-            var collectionItem = lvi?.Content as CollectionItem;
+            //            var collectionItem = ci?.Content as CollectionItem;
             if (collectionItem == null)
             {
                 e.Accepted = false;
@@ -97,7 +109,6 @@ namespace ProjectExplorer
             // Если не выделена ни одна метка, то показываем всё
             if (!noTagsChecked)
             {
-
                 if (_tagsAnd)
                 {
                     if (
@@ -127,7 +138,7 @@ namespace ProjectExplorer
 
             if (!string.IsNullOrEmpty(_findText))
             {
-                
+
                 if (!collectionItem.ProjectName.ToLower().Contains(_findText))
                 {
                     e.Accepted = false;
@@ -226,32 +237,35 @@ namespace ProjectExplorer
             }
         }
 
-        private ListViewItem AddNewItemInView(FrameworkElement item, object dataItem)
-        {
-            //LvProjects.Items
-            var lvi = new ListViewItem
-            {
-                Content = item,
-                Tag = dataItem
-            };
-            _listViewItems.Add(lvi);
-            return lvi;
-        }
+        /*
+                private ListViewItem AddNewItemInView(FrameworkElement item, object dataItem)
+                {
+                    //LvProjects.Items
+                    var lvi = new ListViewItem
+                    {
+                        Content = item,
+                        Tag = dataItem
+                    };
+                    _listViewItems.Add(lvi);
+                    return lvi;
+                }
+        */
 
         private void ShowCollection()
         {
-            _listViewItems.Clear();
+            _collectionItems.Clear();
             //            LvProjects.Items.Clear();
 
             foreach (var solution in _projectCollection.Solution)
             {
                 var item = new CollectionItem(solution, _projectCollection.Tags);
-                var lvi = AddNewItemInView(item, solution);
+                _collectionItems.Add(item);
+                //var lvi = AddNewItemInView(item, solution);
 
                 item.Remove = () =>
                 {
                     _projectCollection.Solution.Remove(solution);
-                    _listViewItems.Remove(lvi);
+                    _collectionItems.Remove(item);//lvi
                     //LvProjects.Items.Remove(item);
                 };
 
@@ -260,12 +274,14 @@ namespace ProjectExplorer
             foreach (var project in _projectCollection.Project)
             {
                 var item = new CollectionItem(project, _projectCollection.Tags);
-                var lvi = AddNewItemInView(item, project);
+                _collectionItems.Add(item);
+
+                //                var lvi = AddNewItemInView(item, project);
 
                 item.Remove = () =>
                 {
                     _projectCollection.Project.Remove(project);
-                    _listViewItems.Remove(lvi);
+                    _collectionItems.Remove(item);//lvi
                     //LvProjects.Items.Remove(item);
                 };
 
@@ -486,8 +502,16 @@ namespace ProjectExplorer
         private static void BackupCollection()
         {
             if (File.Exists(CollectionFileName))
-                File.Copy(CollectionFileName,
-                    CollectionFileName + "." + DateTime.Now.ToString("yyyy-MM-dd_hh-mm-ss-fff") + ".bak");
+            {
+                using (var zip = new ZipFile())
+                {
+                    zip.AddFile(CollectionFileName);
+                    zip.Save(CollectionFileName + "." + DateTime.Now.ToString("yyyy-MM-dd_hh-mm-ss-fff") + ".zip");
+                }
+            }
+
+            //                File.Copy(CollectionFileName,
+            //                    CollectionFileName + "." + DateTime.Now.ToString("yyyy-MM-dd_hh-mm-ss-fff") + ".bak");
         }
 
         private static string NormalizePath(string path)
@@ -511,10 +535,10 @@ namespace ProjectExplorer
         private void UpdateTagsOnAllItems()
         {
             //LvProjects.Items
-            foreach (ListViewItem item in _listViewItems)
+            foreach (var item in _collectionItems)
             {
-                var collectionItem = item.Content as CollectionItem;
-                collectionItem?.UpdateTags(_projectCollection.Tags);
+                //                var collectionItem = item.Content as CollectionItem;
+                item.UpdateTags(_projectCollection.Tags);//collectionItem?
             }
         }
 
@@ -529,30 +553,33 @@ namespace ProjectExplorer
             SaveCollection();
         }
 
-        private void ShowReadmeClick(object sender, RoutedEventArgs e)
-        {
-            if (LvProjects.SelectedItem == null)
-                return;
+        /*
+                private void ShowReadmeClick(object sender, RoutedEventArgs e)
+                {
+                    if (LvProjects.SelectedItem == null)
+                        return;
 
-            var listItem = (ListViewItem)LvProjects.SelectedItem;
-            string readmePath = null;
+                    var listItem = (ListViewItem)LvProjects.SelectedItem;
+
+                    string readmePath = null;
 
 
-            var project = listItem.Tag as ProjectBase;
-            if (project != null)
-            {
-                readmePath = project.ReadmePath;
-            }
-            if (string.IsNullOrEmpty(readmePath))
-            {
-                MessageBox.Show("В папке проекта нет файла Readme");
-                return;
-            }
+                    var project = listItem.Tag as ProjectBase;
+                    if (project != null)
+                    {
+                        readmePath = project.ReadmePath;
+                    }
+                    if (string.IsNullOrEmpty(readmePath))
+                    {
+                        MessageBox.Show("В папке проекта нет файла Readme");
+                        return;
+                    }
 
-            var readmeWin = new ReadmeWindow(readmePath);
-            readmeWin.ShowDialog();
+                    var readmeWin = new ReadmeWindow(readmePath);
+                    readmeWin.ShowDialog();
 
-        }
+                }
+        */
 
         private void OpenFolderClick(object sender, RoutedEventArgs e)
         {
@@ -573,12 +600,12 @@ namespace ProjectExplorer
                 Process.Start(projectDir);
         }
 
-        private void RemoveItem(ListViewItem lvi)
+        private void RemoveItem(CollectionItem ci)//ListViewItem
         {
-            _listViewItems.Remove(lvi);
+            _collectionItems.Remove(ci);
             //            LvProjects.Items.Remove(lvi);
 
-            var project = lvi.Tag as ProjectBase;
+            var project = ci.Tag as ProjectBase;
             if (project != null)
             {
                 var colution = project as SolutionBase;
@@ -602,7 +629,8 @@ namespace ProjectExplorer
             for (var i = LvProjects.SelectedItems.Count - 1; i >= 0; i--)
             {
                 var item = (ListViewItem)LvProjects.SelectedItems[i];
-                RemoveItem(item);
+                var ci = item.DataContext as CollectionItem;
+                RemoveItem(ci);
             }
         }
 
@@ -669,8 +697,199 @@ namespace ProjectExplorer
             var tmp = TbSearch.Text.Trim();
             _findText = null;
             // Если текст какой-то был
-            if(!string.IsNullOrEmpty(tmp))
+            if (!string.IsNullOrEmpty(tmp))
                 TbSearch.Text = string.Empty;
+        }
+
+        private void ViewAll(object sender, RoutedEventArgs e)
+        {
+            if (_viewMode == ViewModes.All)
+                return;
+            _viewMode = ViewModes.All;
+        }
+
+        private void ViewByFolders(object sender, RoutedEventArgs e)
+        {
+            if (_viewMode == ViewModes.Folder)
+                return;
+            _viewMode = ViewModes.Folder;
+
+        }
+
+
+        private void CreateTree()
+        {
+            var foldersTree = new List<FolderItem>
+            {
+                new FolderItem
+                {
+                    Name = "/",
+                }
+            };
+
+            foreach (var solution in _projectCollection.Solution)
+            {
+                CreateDirInTree(foldersTree, solution);
+            }
+            foreach (var project in _projectCollection.Project)
+            {
+                CreateDirInTree(foldersTree, project);
+            }
+            TvFolders.ItemsSource = foldersTree;
+
+        }
+
+        private void CreateDirInTree(List<FolderItem> foldersTree, ProjectBase project)
+        {
+
+            var dirName = Path.GetDirectoryName(project.FullPath);
+            if (dirName == null)
+                return;
+            var relativeDir = dirName.Substring(_projectCollection.RootDir.Length).TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            var directories = relativeDir.Split(Path.DirectorySeparatorChar);
+
+            var rootItem = foldersTree[0];
+
+            var dir = GetDir(rootItem, directories, 0);
+            project.Folder = dir;
+            if (dir.Projects == null)
+                dir.Projects = new List<ProjectBase>();
+            dir.Projects.Add(project);
+        }
+
+        private FolderItem GetDir(FolderItem parentItem, string[] createdPath, int currentIndex)
+        {
+            if (parentItem.SubDirs != null)
+            {
+                foreach (var item in parentItem.SubDirs)
+                {
+                    if (string.Equals((item.Name), createdPath[currentIndex], StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        if (currentIndex == createdPath.Length - 1)
+                        {
+                            return item;
+                        }
+                        return GetDir(item, createdPath, currentIndex + 1);
+                    }
+                }
+            }
+            else
+            {
+                parentItem.SubDirs = new List<FolderItem>();
+            }
+            // Если не найдено, создаём каталог
+            for (var i = currentIndex; i < createdPath.Length; i++)
+            {
+                var curItem = new FolderItem
+                {
+                    Parent = parentItem,
+                    Name = createdPath[i],
+                    SubDirs = new List<FolderItem>()
+                };
+                parentItem.SubDirs.Add(curItem);
+                parentItem = curItem;
+            }
+            return parentItem;
+        }
+
+        private void LvProjects_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var lv = (ListView)sender;
+            if (lv.SelectedItems.Count == 0)
+            {
+                // TODO скрыть все папки
+                return;
+            }
+
+            var project = ((CollectionItem)lv.SelectedItem).Project;
+            //            var project = (ProjectBase)((ListViewItem)lv.SelectedItem).Tag;
+
+            if (!string.IsNullOrEmpty(project.ReadmePath))
+            {
+                ShowReadme(project.ReadmePath);
+            }
+            else
+            {
+                WbReadme.Navigate("about:blank");
+            }
+
+
+            if (lv.Tag != null)
+                return;
+            var folder = project.Folder;
+            if (folder.IsSelected)
+                return;
+            folder.IsSelected = true;
+            do
+            {
+                folder.IsExpanded = true;
+                folder = folder.Parent;
+            } while (folder != null);
+            //((TreeViewItem)TvFolders.SelectedItem).BringIntoView();
+        }
+
+        private void ShowReadme(string readmePath)
+        {
+            var strAppDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase);
+            if (strAppDir == null)
+                return;
+            var strFullPathToMyFile = Path.Combine(strAppDir, "ReadMeStyle.less");
+
+            var source = File.ReadAllText(readmePath);
+
+            var options = new MarkdownOptions
+            {
+                AutoHyperlink = true,
+                AutoNewlines = true,
+                LinkEmails = true,
+                QuoteSingleLine = true,
+                StrictBoldItalic = true
+            };
+
+            var mark = new Markdown(options);
+            var headerHtml = @"<!DOCTYPE html>
+<head>
+    <meta charset='utf-8'>
+<link rel='stylesheet' type='text/css' href='
+"
++
+strFullPathToMyFile
+ +
+@"' />
+</head>
+<body>
+";
+            const string footerHtml = @"</body>";
+            var htmlString = headerHtml + mark.Transform(source) + footerHtml;
+
+
+            WbReadme.NavigateToString(htmlString);
+
+        }
+
+        private void TvFoldersOnSelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+            var tv = (TreeView)sender;
+            if (tv.Tag != null)
+                return;
+            var selectedFolder = tv.SelectedItem as FolderItem;
+            if (selectedFolder == null)
+                return;
+
+            LvProjects.Tag = 1;
+
+            LvProjects.UnselectAll();
+
+            if (selectedFolder.Projects == null)
+                return;
+
+            foreach (var project in selectedFolder.Projects)
+            {
+                project.IsSelected = true;
+            }
+
+            LvProjects.Tag = null;
+
         }
     }
 }

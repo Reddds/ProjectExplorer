@@ -35,6 +35,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Ionic.Zip, Version=1.9.8.0, Culture=neutral, PublicKeyToken=6583c7c814667745, processorArchitecture=MSIL">
+      <HintPath>..\packages\DotNetZip.1.9.8\lib\net20\Ionic.Zip.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="MarkdownSharp, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Markdown.1.14.4\lib\net45\MarkdownSharp.dll</HintPath>
       <Private>True</Private>
@@ -84,6 +88,10 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Converters\TextToColorConverter.cs" />
+    <Compile Include="FolderItem.cs" />
+    <Compile Include="Helpers\ListViewItemBehavior.cs" />
+    <Compile Include="Helpers\TreeViewItemBehavior.cs" />
+    <Compile Include="Models\PartialProjects.cs" />
     <Compile Include="Windows\OptionsDialog.xaml.cs">
       <DependentUpon>OptionsDialog.xaml</DependentUpon>
     </Compile>
@@ -179,6 +187,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Assets\Images\clear.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Images\readme.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
+using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -15,9 +14,8 @@ namespace ProjectExplorer.Controls
     /// <summary>
     /// Interaction logic for CollectionItem.xaml
     /// </summary>
-    public partial class CollectionItem
+    public partial class CollectionItem// : INotifyPropertyChanged
     {
-        private readonly ProjectBase _projectInfo;
         private Dictionary<int, ProjectCollectionTag> _tagIds;
 
         public Action Remove;
@@ -27,35 +25,42 @@ namespace ProjectExplorer.Controls
             InitializeComponent();
         }
 
-        public CollectionItem(ProjectBase projectInfo, List<ProjectCollectionTag> tagsData) :this()
+        public ProjectBase Project { get; }
+
+        public CollectionItem(ProjectBase projectInfo, List<ProjectCollectionTag> tagsData) : this()
         {
-            _projectInfo = projectInfo;
-            if(_projectInfo is SolutionBase)
+            Project = projectInfo;
+            if (Project is SolutionBase)
                 ISolution.Visibility = Visibility.Visible;
 
-            LName.Content = _projectInfo.Name;
-            LName.ToolTip = _projectInfo.FullPath;
-
-            if (!string.IsNullOrEmpty(_projectInfo.ImagePath))
+            if (!string.IsNullOrEmpty(Project.ReadmePath))
             {
-                IScreenshot.Source = new BitmapImage(new Uri(_projectInfo.ImagePath));
+                IReadme.Visibility = Visibility.Visible;
+            }
+
+            LName.Content = Project.Name;
+            LName.ToolTip = Project.FullPath;
+
+            if (!string.IsNullOrEmpty(Project.ImagePath))
+            {
+                IScreenshot.Source = new BitmapImage(new Uri(Project.ImagePath));
                 BShowFullScreenshot.Visibility = Visibility.Visible;
             }
 
-            ProcessTags(tagsData, _projectInfo.Tags);
+            ProcessTags(tagsData, Project.Tags);
 
         }
 
-        public bool IsSolution => _projectInfo is SolutionBase;
+        public bool IsSolution => Project is SolutionBase;
         public bool IsNoTagsSet => _tagIds == null || _tagIds.Count == 0;
-        public string ProjectName => _projectInfo.Name;
+        public string ProjectName => Project.Name;
 
         /// <summary>
         /// Обновление тэгов, если их изменили в настройках
         /// </summary>
         public void UpdateTags(List<ProjectCollectionTag> tagsData)
         {
-            if(_tagIds != null)
+            if (_tagIds != null)
                 ShowTags();
         }
 
@@ -69,7 +74,7 @@ namespace ProjectExplorer.Controls
                 {
                     Content = tagObj.Name,
                     Background = new SolidColorBrush((Color?)color ?? Colors.LightGray),
-                    
+
                 };
                 WpTags.Children.Add(newTag);
             }
@@ -79,7 +84,7 @@ namespace ProjectExplorer.Controls
         {
             if (!string.IsNullOrWhiteSpace(tagsStr))
             {
-                var tags = tagsStr.Split(new[] {';'}, StringSplitOptions.RemoveEmptyEntries);
+                var tags = tagsStr.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
                 _tagIds = new Dictionary<int, ProjectCollectionTag>();
                 for (var i = 0; i < tags.Length; i++)
                 {
@@ -103,7 +108,7 @@ namespace ProjectExplorer.Controls
 
         private void ShowFullScreenShotClick(object sender, EventArgs e)
         {
-            var curImagePath = _projectInfo.ImagePath;
+            var curImagePath = Project.ImagePath;
             if (string.IsNullOrEmpty(curImagePath))
             {
                 return;
@@ -130,8 +135,8 @@ namespace ProjectExplorer.Controls
                 var tagStrs = (from t in _tagIds
                                select t.Key.ToString()).ToArray();
                 var tagStr = string.Join(";", tagStrs);
-                if (_projectInfo != null)
-                    _projectInfo.Tags = tagStr;
+                if (Project != null)
+                    Project.Tags = tagStr;
                 ShowTags();
             }
         }
@@ -140,5 +145,48 @@ namespace ProjectExplorer.Controls
         {
             return _tagIds?.ContainsKey(tag.Id) ?? false;
         }
+
+        public void ShowReadme()
+        {
+            var readmePath = Project.ReadmePath;
+
+            if (string.IsNullOrEmpty(readmePath))
+            {
+                MessageBox.Show("В папке проекта нет файла Readme");
+                return;
+            }
+
+            var readmeWin = new ReadmeWindow(readmePath);
+            readmeWin.ShowDialog();
+        }
+
+        private void ShowReadmeClick(object sender, RoutedEventArgs e)
+        {
+            ShowReadme();
+        }
+/*
+
+        private bool _isSelected;
+        public bool IsSelected
+        {
+            get { return _isSelected; }
+            set
+            {
+                if (value != _isSelected)
+                {
+                    _isSelected = value;
+                    NotifyPropertyChanged("IsSelected");
+                }
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public void NotifyPropertyChanged(string propName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
+        }
+*/
+
     }
 }

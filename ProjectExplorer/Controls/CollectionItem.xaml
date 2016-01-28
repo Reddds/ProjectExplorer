@@ -5,31 +5,35 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ProjectExplorer"
              mc:Ignorable="d" 
-             Width="200" Height="150"
+             Width="400" Height="85"
              Margin="2"
              Background="AliceBlue">
 
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="130"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="87"/>
-            <RowDefinition/>
+            <RowDefinition Height="26"/>
             <RowDefinition Height="36"/>
+            <RowDefinition/>
         </Grid.RowDefinitions>
-        <Image x:Name="IScreenshot" HorizontalAlignment="Right"/>
-        <Button x:Name="BShowFullScreenshot" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Bottom"
+        <Image Grid.Column="0" Grid.RowSpan="3" x:Name="IScreenshot" HorizontalAlignment="Left" MaxWidth="125" Height="85"/>
+        <Button x:Name="BShowFullScreenshot" Grid.Row="0" Grid.RowSpan="3" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Bottom"
                 Background="#B0808080" Click="ShowFullScreenShotClick"
                 Visibility="Collapsed"
                 Margin="5">
             <Image Source="../Assets/Images/ShowFullScreenshot.png" Width="32"/>
         </Button>
-        <Image x:Name="ISolution" Grid.Row="0" Visibility="Collapsed" HorizontalAlignment="Left" VerticalAlignment="Top" Source="../Assets/Images/solution.png" Width="64"/>
+        <Image x:Name="ISolution" Grid.Column="0" Grid.Row="0" Visibility="Collapsed" HorizontalAlignment="Left" VerticalAlignment="Top" Source="../Assets/Images/solution.png" Width="32"/>
+        <Image x:Name="IReadme" Grid.Column="1" Grid.Row="0" Visibility="Collapsed" 
+                HorizontalAlignment="Right" VerticalAlignment="Top" Source="../Assets/Images/readme.png"  Height="26"/>
 
-        <Label Grid.Row="1" x:Name="LName" />
-        <Border Grid.Row="2" Background="Linen">
+        <Label Grid.Row="0" Grid.Column="1" x:Name="LName" Margin="0,0,32,0">Название проекта</Label>
 
-            <WrapPanel x:Name="WpTags">
+        <WrapPanel Grid.Row="1" Grid.Column="1" x:Name="WpTags">
             <WrapPanel.Resources>
-                <Brush x:Key="HigginsBrush">#B39DDB</Brush>
                 <Style TargetType="Label">
                     <Setter Property="Background" Value="LightGray"></Setter>
                     <Setter Property="Padding" Value="2,0,2,1"></Setter>
@@ -43,7 +47,5 @@
                 </Style>
             </WrapPanel.Resources>
         </WrapPanel>
-            
-        </Border>
     </Grid>
 </UserControl>
