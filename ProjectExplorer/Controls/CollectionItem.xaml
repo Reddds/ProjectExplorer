@@ -7,7 +7,8 @@
              mc:Ignorable="d" 
              Width="400" Height="85"
              Margin="2"
-             Background="AliceBlue">
+             Background="AliceBlue"
+             MouseEnter="OnMouseEnter" MouseLeave="OnMouseLeave">
 
     <Grid>
         <Grid.ColumnDefinitions>
@@ -19,7 +20,8 @@
             <RowDefinition Height="36"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <Image Grid.Column="0" Grid.RowSpan="3" x:Name="IScreenshot" HorizontalAlignment="Left" MaxWidth="125" Height="85"/>
+        <Image Grid.Column="0" Grid.RowSpan="3" x:Name="IScreenshot" HorizontalAlignment="Left" MaxWidth="125" Height="85"
+               />
         <Button x:Name="BShowFullScreenshot" Grid.Row="0" Grid.RowSpan="3" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Bottom"
                 Background="#B0808080" Click="ShowFullScreenShotClick"
                 Visibility="Collapsed"

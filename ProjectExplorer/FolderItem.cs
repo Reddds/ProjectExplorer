@@ -9,8 +9,19 @@ namespace ProjectExplorer
         public FolderItem Parent { get; set; }
 
         public string Name { get; set; }
+        public string FullPath { get; set; }
         public List<FolderItem> SubDirs { get; set; }
         public List<ProjectBase> Projects { get; set; }
+
+
+        public override string ToString()
+        {
+            if (Projects != null && Projects.Count > 0)
+            {
+                return $@"{Name} [{Projects.Count}]";
+            }
+            return Name;
+        }
 
         private bool _isSelected;
         public bool IsSelected

@@ -4,8 +4,10 @@ using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 using ProjectExplorer.Models;
 using ProjectExplorer.Windows;
 
@@ -16,7 +18,10 @@ namespace ProjectExplorer.Controls
     /// </summary>
     public partial class CollectionItem// : INotifyPropertyChanged
     {
+        private readonly List<ProjectCollectionTag> _tagsData;
         private Dictionary<int, ProjectCollectionTag> _tagIds;
+
+        private DispatcherTimer _miniZoom;
 
         public Action Remove;
 
@@ -27,28 +32,21 @@ namespace ProjectExplorer.Controls
 
         public ProjectBase Project { get; }
 
+
         public CollectionItem(ProjectBase projectInfo, List<ProjectCollectionTag> tagsData) : this()
         {
+            _tagsData = tagsData;
             Project = projectInfo;
-            if (Project is SolutionBase)
-                ISolution.Visibility = Visibility.Visible;
 
-            if (!string.IsNullOrEmpty(Project.ReadmePath))
-            {
-                IReadme.Visibility = Visibility.Visible;
-            }
+            _miniZoom = new DispatcherTimer { Interval = new TimeSpan(0, 0, 1) };
+            _miniZoom.Tick += MiniZoomTick;
 
-            LName.Content = Project.Name;
-            LName.ToolTip = Project.FullPath;
+            Redraw();
+        }
 
-            if (!string.IsNullOrEmpty(Project.ImagePath))
-            {
-                IScreenshot.Source = new BitmapImage(new Uri(Project.ImagePath));
-                BShowFullScreenshot.Visibility = Visibility.Visible;
-            }
-
-            ProcessTags(tagsData, Project.Tags);
-
+        private void MiniZoomTick(object sender, EventArgs e)
+        {
+            throw new NotImplementedException();
         }
 
         public bool IsSolution => Project is SolutionBase;
@@ -146,47 +144,85 @@ namespace ProjectExplorer.Controls
             return _tagIds?.ContainsKey(tag.Id) ?? false;
         }
 
-        public void ShowReadme()
+        /// <summary>
+        /// Обновление внешнего вида на основе изменённых данных модели
+        /// </summary>
+        public void Redraw()
         {
-            var readmePath = Project.ReadmePath;
+            if (Project is SolutionBase)
+                ISolution.Visibility = Visibility.Visible;
 
-            if (string.IsNullOrEmpty(readmePath))
+            if (!string.IsNullOrEmpty(Project.ReadmePath))
             {
-                MessageBox.Show("В папке проекта нет файла Readme");
-                return;
+                IReadme.Visibility = Visibility.Visible;
             }
 
-            var readmeWin = new ReadmeWindow(readmePath);
-            readmeWin.ShowDialog();
-        }
+            LName.Content = Project.Name;
+            LName.ToolTip = Project.FullPath;
 
-        private void ShowReadmeClick(object sender, RoutedEventArgs e)
-        {
-            ShowReadme();
-        }
-/*
-
-        private bool _isSelected;
-        public bool IsSelected
-        {
-            get { return _isSelected; }
-            set
+            if (!string.IsNullOrEmpty(Project.ImagePath))
             {
-                if (value != _isSelected)
+                IScreenshot.Source = new BitmapImage(new Uri(Project.ImagePath));
+                //                BShowFullScreenshot.Visibility = Visibility.Visible;
+            }
+
+            ProcessTags(_tagsData, Project.Tags);
+
+        }
+
+        /*        public void ShowReadme()
                 {
-                    _isSelected = value;
-                    NotifyPropertyChanged("IsSelected");
+                    var readmePath = Project.ReadmePath;
+
+                    if (string.IsNullOrEmpty(readmePath))
+                    {
+                        MessageBox.Show("В папке проекта нет файла Readme");
+                        return;
+                    }
+
+                    var readmeWin = new ReadmeWindow(readmePath);
+                    readmeWin.ShowDialog();
                 }
+
+                private void ShowReadmeClick(object sender, RoutedEventArgs e)
+                {
+                    ShowReadme();
+                }*/
+        /*
+
+                private bool _isSelected;
+                public bool IsSelected
+                {
+                    get { return _isSelected; }
+                    set
+                    {
+                        if (value != _isSelected)
+                        {
+                            _isSelected = value;
+                            NotifyPropertyChanged("IsSelected");
+                        }
+                    }
+                }
+
+                public event PropertyChangedEventHandler PropertyChanged;
+
+                public void NotifyPropertyChanged(string propName)
+                {
+                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
+                }
+        */
+
+        private void OnMouseEnter(object sender, MouseEventArgs e)
+        {
+            if (!string.IsNullOrEmpty(Project.ImagePath))
+            {
+                BShowFullScreenshot.Visibility = Visibility.Visible;
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public void NotifyPropertyChanged(string propName)
+        private void OnMouseLeave(object sender, MouseEventArgs e)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
+            BShowFullScreenshot.Visibility = Visibility.Collapsed;
         }
-*/
-
     }
 }

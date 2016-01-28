@@ -2,14 +2,12 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
 using Ionic.Zip;
@@ -27,7 +25,7 @@ namespace ProjectExplorer
     public partial class MainWindow
     {
         private const string CollectionFileName = "projectCollection.xml";
-        private string _rootDirPath;
+        //private string _rootDirPath;
         readonly ProjectCollection _projectCollection;
         private readonly CollectionViewSource _viewCollection;
         private readonly List<CollectionItem> _collectionItems;
@@ -67,6 +65,7 @@ namespace ProjectExplorer
                 _projectCollection = new ProjectCollection();
             }
             _viewCollection.Source = _collectionItems;
+            //_viewCollection.SortDescriptions.Add(new SortDescription("FullPath", ListSortDirection.Ascending));
             LvProjects.ItemsSource = _viewCollection.View;
 
             CreateTree();
@@ -194,7 +193,8 @@ namespace ProjectExplorer
             foreach (var tag in _projectCollection.Tags)
             {
                 // Во всех ли выделенных проектах установлен данный тэг
-                var projectsWhereTagSet = (from ListViewItem lvi in LvProjects.SelectedItems select (CollectionItem)lvi.Content).Count(collectionItem => collectionItem.IsTagSet(tag));
+
+                var projectsWhereTagSet = (from CollectionItem ci in LvProjects.SelectedItems select ci).Count(collectionItem => collectionItem.IsTagSet(tag));
 
 
                 var color = ColorConverter.ConvertFromString(tag.Color);
@@ -432,18 +432,18 @@ namespace ProjectExplorer
                     MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
                 return;
 
-            _rootDirPath = TbRootProjectDir.Text.Trim();
-            Properties.Settings.Default.RootPath = _rootDirPath;
+            var rootDirPath = TbRootProjectDir.Text.Trim();
+            Properties.Settings.Default.RootPath = rootDirPath;
             Properties.Settings.Default.Save();
 
-            if (string.IsNullOrEmpty(_rootDirPath))
+            if (string.IsNullOrEmpty(rootDirPath))
             {
                 MessageBox.Show("Введите корневой каталог!");
                 return;
             }
-            _rootDirPath = NormalizePath(_rootDirPath);
+            rootDirPath = NormalizePath(rootDirPath);
 
-            _projectCollection.RootDir = _rootDirPath;
+            _projectCollection.RootDir = rootDirPath;
 
             BiLoading.IsBusy = true;
 
@@ -495,7 +495,7 @@ namespace ProjectExplorer
                 TreeScan(rootDir, curWorker);
             };
 
-            worker.RunWorkerAsync(_rootDirPath);
+            worker.RunWorkerAsync(rootDirPath);
 
         }
 
@@ -586,16 +586,21 @@ namespace ProjectExplorer
             if (LvProjects.SelectedItem == null)
                 return;
 
-            var listItem = (ListViewItem)LvProjects.SelectedItem;
+            var collectionItem = (CollectionItem)LvProjects.SelectedItem;
             string projectDir = null;
 
 
-            var project = listItem.Tag as ProjectBase;
+            var project = collectionItem.Project;
             if (project != null)
             {
                 projectDir = Path.GetDirectoryName(project.FullPath);
             }
 
+            ShowFolder(projectDir);
+        }
+
+        private static void ShowFolder(string projectDir)
+        {
             if (projectDir != null)
                 Process.Start(projectDir);
         }
@@ -670,8 +675,8 @@ namespace ProjectExplorer
         {
             for (var i = LvProjects.SelectedItems.Count - 1; i >= 0; i--)
             {
-                var item = (ListViewItem)LvProjects.SelectedItems[i];
-                var project = item.Tag as ProjectBase;
+                var item = (CollectionItem)LvProjects.SelectedItems[i];
+                var project = item.Project;
                 if (project != null)
                 {
                     var projectDir = Path.GetDirectoryName(project.FullPath);
@@ -680,6 +685,7 @@ namespace ProjectExplorer
                         continue;
                     }
                     ScanFolder(project, new DirectoryInfo(projectDir));
+                    item.Redraw();
                 }
             }
             RefreshView();
@@ -724,6 +730,7 @@ namespace ProjectExplorer
                 new FolderItem
                 {
                     Name = "/",
+                    FullPath = _projectCollection.RootDir
                 }
             };
 
@@ -778,12 +785,19 @@ namespace ProjectExplorer
                 parentItem.SubDirs = new List<FolderItem>();
             }
             // Если не найдено, создаём каталог
+            var fullPath = _projectCollection.RootDir;
+            for (var i = 0; i < currentIndex; i++)
+            {
+                fullPath = Path.Combine(fullPath, createdPath[i]);
+            }
             for (var i = currentIndex; i < createdPath.Length; i++)
             {
+                fullPath = Path.Combine(fullPath, createdPath[i]);
                 var curItem = new FolderItem
                 {
                     Parent = parentItem,
                     Name = createdPath[i],
+                    FullPath = fullPath,
                     SubDirs = new List<FolderItem>()
                 };
                 parentItem.SubDirs.Add(curItem);
@@ -890,6 +904,20 @@ strFullPathToMyFile
 
             LvProjects.Tag = null;
 
+        }
+
+        private void TreeItemOpenFolder(object sender, RoutedEventArgs e)
+        {
+            if (TvFolders.SelectedItem == null)
+            {
+                MessageBox.Show("Выберите папку");
+                return;
+            }
+            var folder = TvFolders.SelectedItem as FolderItem;
+            if (folder == null)
+                return;
+
+            ShowFolder(folder.FullPath);
         }
     }
 }

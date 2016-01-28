@@ -8,7 +8,7 @@
         xmlns:helpers="clr-namespace:ProjectExplorer.Helpers"
         xmlns:controls="clr-namespace:ProjectExplorer.Controls"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="672.582" Closed="Window_Closed">
+        Title="Навигатор по проектам" Height="350" Width="672.582" Closed="Window_Closed" Icon="ico.ico">
     <xctk:BusyIndicator x:Name="BiLoading">
         <Grid>
             <Grid.RowDefinitions>
@@ -89,6 +89,11 @@
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
                 <TreeView x:Name="TvFolders" SelectedItemChanged="TvFoldersOnSelectedItemChanged">
+                    <TreeView.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="Открыть папку" Click="TreeItemOpenFolder"/>
+                        </ContextMenu>
+                    </TreeView.ContextMenu>
                     <TreeView.Resources>
                         <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" >
                             #FF9BDDFB
@@ -97,7 +102,7 @@
                     </TreeView.Resources>
                     <TreeView.ItemTemplate>
                         <HierarchicalDataTemplate ItemsSource="{Binding Path=SubDirs}">
-                            <TextBlock Text="{Binding Path=Name}"/>
+                            <TextBlock Text="{Binding}"/>
                             <!--<HierarchicalDataTemplate.ItemTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding Path=Name}"></TextBlock>
