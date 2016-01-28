@@ -168,6 +168,9 @@
     <None Include="ReadMeStyle.less">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="readmeTemplate.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -196,6 +199,12 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="ico.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Images\editReadme.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Images\addReadme.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

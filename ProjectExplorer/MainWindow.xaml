@@ -147,51 +147,57 @@
                         <RowDefinition/>
                         <RowDefinition/>
                     </Grid.RowDefinitions>
-                <ScrollViewer x:Name="SvMainView" Grid.Row="0" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" Margin="0,0,0,5">
-                    <!--            <WrapPanel x:Name="WpProjects" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True" />-->
-                    <ListView x:Name="LvProjects" ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
+                    <ScrollViewer x:Name="SvMainView" Grid.Row="0" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" Margin="0,0,0,5">
+                        <!--            <WrapPanel x:Name="WpProjects" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True" />-->
+                        <ListView x:Name="LvProjects" ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
                       ScrollViewer.VerticalScrollBarVisibility="Auto" 
                       ScrollViewer.CanContentScroll="True"
                        ContextMenuOpening="CmMainOpening" SelectionChanged="LvProjects_SelectionChanged">
-                        <ListView.ContextMenu>
-                            <ContextMenu x:Name="CmMain">
-<!--                                <MenuItem Header="Показать Readme" Click="ShowReadmeClick"/>-->
-                                <MenuItem Header="Открыть папку" Click="OpenFolderClick"/>
-                                <Separator />
-                                <MenuItem Header="Обновить информацию" Click="UpdateInfoClick"/>
-                                <Separator />
-                                <MenuItem Header="Удалить" Click="RemoveItemClick"/>
-                                <Separator />
-                            </ContextMenu>
-                        </ListView.ContextMenu>
-                        <ListView.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <WrapPanel Orientation="Horizontal" />
-                            </ItemsPanelTemplate>
-                        </ListView.ItemsPanel>
-                        <ListView.ItemContainerStyle>
-                            <Style TargetType="ListViewItem">
-                                <Setter Property="IsSelected" Value="{Binding (controls:CollectionItem.Project).IsSelected}" />
+                            <ListView.ContextMenu>
+                                <ContextMenu x:Name="CmMain">
+                                    <!--                                <MenuItem Header="Показать Readme" Click="ShowReadmeClick"/>-->
+                                    <MenuItem Header="Открыть папку" Click="OpenFolderClick"/>
+                                    <Separator />
+                                    <MenuItem Header="Обновить информацию" Click="UpdateInfoClick"/>
+                                    <Separator />
+                                    <MenuItem Header="Удалить" Click="RemoveItemClick"/>
+                                    <Separator />
+                                </ContextMenu>
+                            </ListView.ContextMenu>
+                            <ListView.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel Orientation="Horizontal" />
+                                </ItemsPanelTemplate>
+                            </ListView.ItemsPanel>
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem">
+                                    <Setter Property="IsSelected" Value="{Binding (controls:CollectionItem.Project).IsSelected}" />
 
-                                <Setter Property="BorderThickness" Value="1"/>
-                                <Style.Triggers>
-                                    <Trigger Property="IsSelected" Value="True">
-                                        <Setter Property="BorderBrush" Value="#039BE5"/>
-                                    </Trigger>
+                                    <Setter Property="BorderThickness" Value="1"/>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter Property="BorderBrush" Value="#039BE5"/>
+                                        </Trigger>
 
-                                    <Trigger Property="IsSelected" Value="True">
-                                        <Setter Property="helpers:ListViewItemBehavior.BringIntoViewWhenSelected" Value="True" />
-                                    </Trigger>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter Property="helpers:ListViewItemBehavior.BringIntoViewWhenSelected" Value="True" />
+                                        </Trigger>
 
-                                </Style.Triggers>
+                                    </Style.Triggers>
 
-                            </Style>
-                        </ListView.ItemContainerStyle>
-                    </ListView>
+                                </Style>
+                            </ListView.ItemContainerStyle>
+                        </ListView>
 
-                </ScrollViewer >
+                    </ScrollViewer>
                     <GridSplitter Grid.Row="0" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Height="5"></GridSplitter>
-                    <WebBrowser Grid.Row="1"  Name="WbReadme"></WebBrowser>
+                    <WebBrowser Grid.Row="1"  Name="WbReadme" Margin="0,0,45,0"></WebBrowser>
+                    <Button x:Name="BEditReadme" Grid.Row="1" Visibility="Hidden" Click="EditReadmeClick" Margin="5" ToolTip="Редактировать" HorizontalAlignment="Right" VerticalAlignment="Top">
+                        <Image Source="Assets/Images/editReadme.png" Width="32"></Image>
+                    </Button>
+                    <Button x:Name="BAddReadme" Grid.Row="1" Visibility="Hidden" Click="AddReadmeClick" Margin="5" ToolTip="Добавить readme.md" HorizontalAlignment="Right" VerticalAlignment="Top">
+                        <Image Source="Assets/Images/addReadme.png"  Width="32"></Image>
+                    </Button>
                 </Grid>
             </Grid>
             <TextBox x:Name="TbTest" Grid.Row="2"></TextBox>

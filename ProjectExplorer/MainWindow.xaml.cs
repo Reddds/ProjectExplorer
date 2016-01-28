@@ -25,6 +25,7 @@ namespace ProjectExplorer
     public partial class MainWindow
     {
         private const string CollectionFileName = "projectCollection.xml";
+        private const string ReadMeTemplateFileName = "readmeTemplate.md";
         //private string _rootDirPath;
         readonly ProjectCollection _projectCollection;
         private readonly CollectionViewSource _viewCollection;
@@ -688,7 +689,7 @@ namespace ProjectExplorer
                     item.Redraw();
                 }
             }
-            RefreshView();
+//            RefreshView();
         }
 
         private void TbSearchOnTextInput(object sender, TextChangedEventArgs textChangedEventArgs)
@@ -821,9 +822,15 @@ namespace ProjectExplorer
             if (!string.IsNullOrEmpty(project.ReadmePath))
             {
                 ShowReadme(project.ReadmePath);
+                BEditReadme.Visibility = Visibility.Visible;
+                BAddReadme.Visibility = Visibility.Hidden;
+                
             }
             else
             {
+                BEditReadme.Visibility = Visibility.Hidden;
+                BAddReadme.Visibility = Visibility.Visible;
+
                 WbReadme.Navigate("about:blank");
             }
 
@@ -878,7 +885,6 @@ strFullPathToMyFile
 
 
             WbReadme.NavigateToString(htmlString);
-
         }
 
         private void TvFoldersOnSelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
@@ -918,6 +924,51 @@ strFullPathToMyFile
                 return;
 
             ShowFolder(folder.FullPath);
+        }
+
+        private void EditReadmeClick(object sender, RoutedEventArgs e)
+        {
+            var collectionItem = LvProjects.SelectedItem as CollectionItem;
+            if (collectionItem == null)
+                return;
+
+            ShowEditReadmeWindow(collectionItem.ReadmePath);
+        }
+
+        private void ShowEditReadmeWindow(string readmePath)
+        {
+            var editRedmeWin = new ReadmeWindow(readmePath);
+            editRedmeWin.ShowDialog();
+            ShowReadme(readmePath);
+        }
+
+        private void AddReadmeClick(object sender, RoutedEventArgs e)
+        {
+            var collectionItem = LvProjects.SelectedItem as CollectionItem;
+            if (collectionItem == null)
+                return;
+
+            var strAppDir = AppDomain.CurrentDomain.BaseDirectory;// Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase);
+            var templateFileName = Path.Combine(strAppDir, ReadMeTemplateFileName);
+
+            var readmeText = File.ReadAllText(templateFileName);
+            readmeText = string.Format(readmeText, collectionItem.ProjectName);
+
+            var projectPath = Path.GetDirectoryName(collectionItem.Project.FullPath);
+            if (projectPath == null)
+            {
+                MessageBox.Show("Невозможно создать файл Readme. Не найдена пака проекта");
+                return;
+            }
+            var readmePath = Path.Combine(projectPath, "readme.md");
+            File.WriteAllText(readmePath, readmeText);
+
+            ShowEditReadmeWindow(readmePath);
+
+            collectionItem.Redraw();
+            BEditReadme.Visibility = Visibility.Visible;
+            BAddReadme.Visibility = Visibility.Hidden;
+
         }
     }
 }

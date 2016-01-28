@@ -5,8 +5,19 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ProjectExplorer.Windows"
         mc:Ignorable="d"
-        Title="Readme" Height="600" Width="800">
+        Title="Readme" Height="600" Width="800" KeyDown="ReadmeWindow_OnKeyDown">
     <Grid>
-        <WebBrowser Name="WbReadme"></WebBrowser>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Button Click="SaveClick">Сохранить</Button>
+        <TextBox x:Name="TbSource" Grid.Row="1" Grid.Column="0" Margin="0,0,5,0" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" AcceptsReturn="True" TextWrapping="Wrap"></TextBox>
+        <GridSplitter Grid.Row="1" Grid.Column="0" VerticalAlignment="Stretch" Width="5"></GridSplitter>
+        <WebBrowser Name="WbReadme" Grid.Row="1" Grid.Column="1"></WebBrowser>
     </Grid>
 </Window>

@@ -52,6 +52,7 @@ namespace ProjectExplorer.Controls
         public bool IsSolution => Project is SolutionBase;
         public bool IsNoTagsSet => _tagIds == null || _tagIds.Count == 0;
         public string ProjectName => Project.Name;
+        public string ReadmePath => Project.ReadmePath;
 
         /// <summary>
         /// Обновление тэгов, если их изменили в настройках
