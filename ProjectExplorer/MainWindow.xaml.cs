@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Threading;
 using Ionic.Zip;
 using MarkdownSharp;
+using Microsoft.Win32;
 using ProjectExplorer.Controls;
 using ProjectExplorer.Models;
 using ProjectExplorer.Windows;
@@ -602,8 +603,27 @@ namespace ProjectExplorer
 
         private static void ShowFolder(string projectDir)
         {
-            if (projectDir != null)
-                Process.Start(projectDir);
+            if (projectDir == null)
+                return;
+            // Поищем TotalCommander
+            var installDir = Registry.GetValue(@"HKEY_CURRENT_USER\Software\Ghisler\Total Commander", "InstallDir", null) as string;
+            if (installDir == null)
+            {
+                installDir = Registry.GetValue(@"HKEY_LOCAL_MACHINE\Software\Ghisler\Total Commander", "InstallDir", null) as string;
+                if (installDir == null)
+                {
+                    Process.Start(projectDir);
+                    return;
+                }
+            }
+            var totalPath = Path.Combine(installDir, "totalcmd64.exe");
+            //
+//            var totalCmd = new Process();
+//            totalCmd.StartInfo.FileName = totalPath;
+//            totalCmd.StartInfo.WorkingDirectory = installDir;
+//            totalCmd.StartInfo.Arguments = $@" /O /S {projectDir}";
+//            totalCmd.Start();
+            Process.Start(totalPath, $@" /O /S {projectDir}");
         }
 
         private void RemoveItem(CollectionItem ci)//ListViewItem
@@ -689,7 +709,14 @@ namespace ProjectExplorer
                     item.Redraw();
                 }
             }
-//            RefreshView();
+
+            var selectedItem = LvProjects.SelectedItem as CollectionItem;
+            if (selectedItem != null)
+            {
+                ShowReadme(selectedItem.ReadmePath);
+            }
+
+            //            RefreshView();
         }
 
         private void TbSearchOnTextInput(object sender, TextChangedEventArgs textChangedEventArgs)
@@ -819,38 +846,39 @@ namespace ProjectExplorer
             var project = ((CollectionItem)lv.SelectedItem).Project;
             //            var project = (ProjectBase)((ListViewItem)lv.SelectedItem).Tag;
 
-            if (!string.IsNullOrEmpty(project.ReadmePath))
-            {
-                ShowReadme(project.ReadmePath);
-                BEditReadme.Visibility = Visibility.Visible;
-                BAddReadme.Visibility = Visibility.Hidden;
-                
-            }
-            else
-            {
-                BEditReadme.Visibility = Visibility.Hidden;
-                BAddReadme.Visibility = Visibility.Visible;
-
-                WbReadme.Navigate("about:blank");
-            }
-
+            ShowReadme(project.ReadmePath);
 
             if (lv.Tag != null)
                 return;
             var folder = project.Folder;
             if (folder.IsSelected)
                 return;
+            TvFolders.Tag = 1;
             folder.IsSelected = true;
             do
             {
                 folder.IsExpanded = true;
                 folder = folder.Parent;
             } while (folder != null);
+            TvFolders.Tag = null;
             //((TreeViewItem)TvFolders.SelectedItem).BringIntoView();
         }
 
         private void ShowReadme(string readmePath)
         {
+            if (string.IsNullOrEmpty(readmePath))
+            {
+                BEditReadme.Visibility = Visibility.Hidden;
+                BAddReadme.Visibility = Visibility.Visible;
+
+                WbReadme.Navigate("about:blank");
+                return;
+            }
+            BEditReadme.Visibility = Visibility.Visible;
+            BAddReadme.Visibility = Visibility.Hidden;
+
+
+
             var strAppDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase);
             if (strAppDir == null)
                 return;
@@ -964,11 +992,8 @@ strFullPathToMyFile
             File.WriteAllText(readmePath, readmeText);
 
             ShowEditReadmeWindow(readmePath);
-
+            collectionItem.Project.ReadmePath = readmePath;
             collectionItem.Redraw();
-            BEditReadme.Visibility = Visibility.Visible;
-            BAddReadme.Visibility = Visibility.Hidden;
-
         }
     }
 }
