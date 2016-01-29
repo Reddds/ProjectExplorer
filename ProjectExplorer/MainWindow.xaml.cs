@@ -16,6 +16,7 @@ using Microsoft.Win32;
 using ProjectExplorer.Controls;
 using ProjectExplorer.Models;
 using ProjectExplorer.Windows;
+using RdControls;
 
 
 namespace ProjectExplorer
@@ -27,9 +28,13 @@ namespace ProjectExplorer
     {
         private const string CollectionFileName = "projectCollection.xml";
         private const string ReadMeTemplateFileName = "readmeTemplate.md";
+
+        private const string SolutionFileExt = ".sln";
+        private const string ProjectFileExt = ".csproj";
         //private string _rootDirPath;
         readonly ProjectCollection _projectCollection;
         private readonly CollectionViewSource _viewCollection;
+        private readonly CollectionViewSource _viewFolders;
         private readonly List<CollectionItem> _collectionItems;
         /// <summary>
         /// Искать по тегам, чтобы все теги были включены (true), или нет
@@ -69,8 +74,9 @@ namespace ProjectExplorer
             _viewCollection.Source = _collectionItems;
             //_viewCollection.SortDescriptions.Add(new SortDescription("FullPath", ListSortDirection.Ascending));
             LvProjects.ItemsSource = _viewCollection.View;
-
-            CreateTree();
+            _folders = CreateTree();
+            _viewFolders = new CollectionViewSource {Source = _folders };
+            TvFolders.ItemsSource = _viewFolders.View;
         }
 
         private void ViewCollectionFilter(object sender, FilterEventArgs e)
@@ -159,7 +165,6 @@ namespace ProjectExplorer
         {
             WpTags.Children.Clear();
 
-
             foreach (var tag in _projectCollection.Tags)
             {
                 var content = new Label { Content = tag.Name };
@@ -227,11 +232,9 @@ namespace ProjectExplorer
                 tagMenuItem.Click += (sender, args) =>
                 {
                     var mi = (MenuItem)sender;
-                    foreach (ListViewItem lvi in LvProjects.SelectedItems)
+                    foreach (CollectionItem collectionItem in LvProjects.SelectedItems)
                     {
-                        var collectionItem = lvi.Content as CollectionItem;
-
-                        collectionItem?.SetTag(tag, mi.IsChecked);
+                        collectionItem.SetTag(tag, mi.IsChecked);
                     }
                 };
                 CmMain.Items.Add(tagMenuItem);
@@ -292,6 +295,7 @@ namespace ProjectExplorer
         }
 
         private readonly HashSet<string> _existProjects = new HashSet<string>();
+        private readonly List<FolderItem> _folders;
         //private StringBuilder _foun;
 
         private class FilesInFolder
@@ -330,7 +334,7 @@ namespace ProjectExplorer
 
 
             //            var existDir = _projectCollection.Directory.FirstOrDefault(d => d.Name == dirName);
-            foreach (var f in parentDir.GetFiles("*.sln"))
+            foreach (var f in parentDir.GetFiles("*" + SolutionFileExt))
             {
                 // Если проект уже найден
                 if (_existProjects.Contains(f.FullName.ToLower()))
@@ -401,7 +405,7 @@ namespace ProjectExplorer
 
                 //TbTest.Text += f.FullName + Environment.NewLine;
             }
-            foreach (var f in parentDir.GetFiles("*.csproj"))
+            foreach (var f in parentDir.GetFiles("*" + ProjectFileExt))
             {
                 if (_existProjects.Contains(f.FullName.ToLower()))
                     continue;
@@ -544,9 +548,10 @@ namespace ProjectExplorer
             }
         }
 
-        private void SaveCollection()
+        private void SaveCollection(bool isBackup = true)
         {
-            BackupCollection();
+            if (isBackup)
+                BackupCollection();
             _projectCollection.SaveToFile(CollectionFileName);
         }
 
@@ -618,31 +623,56 @@ namespace ProjectExplorer
             }
             var totalPath = Path.Combine(installDir, "totalcmd64.exe");
             //
-//            var totalCmd = new Process();
-//            totalCmd.StartInfo.FileName = totalPath;
-//            totalCmd.StartInfo.WorkingDirectory = installDir;
-//            totalCmd.StartInfo.Arguments = $@" /O /S {projectDir}";
-//            totalCmd.Start();
-            Process.Start(totalPath, $@" /O /S {projectDir}");
+            //            var totalCmd = new Process();
+            //            totalCmd.StartInfo.FileName = totalPath;
+            //            totalCmd.StartInfo.WorkingDirectory = installDir;
+            //            totalCmd.StartInfo.Arguments = $@" /O /S {projectDir}";
+            //            totalCmd.Start();
+            Process.Start(totalPath, $@" /O /S ""{projectDir}""");
         }
 
-        private void RemoveItem(CollectionItem ci)//ListViewItem
+        private void RemoveItem(CollectionItem ci, bool refresh = true)//ListViewItem
         {
             _collectionItems.Remove(ci);
             //            LvProjects.Items.Remove(lvi);
 
-            var project = ci.Tag as ProjectBase;
+            var project = ci.Project;
             if (project != null)
             {
-                var colution = project as SolutionBase;
-                if (colution != null)
-                    _projectCollection.Solution.Remove(colution);
+                var solution = project as SolutionBase;
+                if (solution != null)
+                    _projectCollection.Solution.Remove(solution);
                 else
                     _projectCollection.Project.Remove(project);
                 _existProjects.Remove(project.FullPath.ToLower());
-                return;
+
+                // Удаляем из дерева
+                var folder = ci.Project.Folder;
+
+                if (folder.SubDirs == null || folder.SubDirs.Count == 0)
+                {
+                    folder.Projects.Remove(ci.Project);
+
+                    // если это последний проект в паке, то удаляем её и все пустые вышестоящие
+                    do
+                    {
+                        if (folder.Parent != null && (folder.Projects == null || folder.Projects.Count == 0)
+                            && (folder.SubDirs == null || folder.SubDirs.Count == 0))
+                        {
+                            folder.Parent.SubDirs.Remove(folder);
+                        }
+                        folder = folder.Parent;
+                    } while (folder != null);
+                    RefreshFolders();
+                }
             }
-            RefreshView();
+            if(refresh)
+                RefreshView();
+        }
+
+        private void RefreshFolders()
+        {
+            _viewFolders.View.Refresh();
         }
 
         private void RemoveItemClick(object sender, RoutedEventArgs e)
@@ -654,8 +684,7 @@ namespace ProjectExplorer
 
             for (var i = LvProjects.SelectedItems.Count - 1; i >= 0; i--)
             {
-                var item = (ListViewItem)LvProjects.SelectedItems[i];
-                var ci = item.DataContext as CollectionItem;
+                var ci = (CollectionItem)LvProjects.SelectedItems[i];
                 RemoveItem(ci);
             }
         }
@@ -751,7 +780,7 @@ namespace ProjectExplorer
         }
 
 
-        private void CreateTree()
+        private List<FolderItem> CreateTree()
         {
             var foldersTree = new List<FolderItem>
             {
@@ -770,8 +799,7 @@ namespace ProjectExplorer
             {
                 CreateDirInTree(foldersTree, project);
             }
-            TvFolders.ItemsSource = foldersTree;
-
+            return foldersTree;
         }
 
         private void CreateDirInTree(List<FolderItem> foldersTree, ProjectBase project)
@@ -960,14 +988,15 @@ strFullPathToMyFile
             if (collectionItem == null)
                 return;
 
-            ShowEditReadmeWindow(collectionItem.ReadmePath);
+            collectionItem.Project.Value = ShowEditReadmeWindow(collectionItem.ReadmePath);
         }
 
-        private void ShowEditReadmeWindow(string readmePath)
+        private string ShowEditReadmeWindow(string readmePath)
         {
             var editRedmeWin = new ReadmeWindow(readmePath);
             editRedmeWin.ShowDialog();
             ShowReadme(readmePath);
+            return editRedmeWin.ReadmeText;
         }
 
         private void AddReadmeClick(object sender, RoutedEventArgs e)
@@ -991,9 +1020,121 @@ strFullPathToMyFile
             var readmePath = Path.Combine(projectPath, "readme.md");
             File.WriteAllText(readmePath, readmeText);
 
-            ShowEditReadmeWindow(readmePath);
+            collectionItem.Project.Value = ShowEditReadmeWindow(readmePath);
             collectionItem.Project.ReadmePath = readmePath;
             collectionItem.Redraw();
+
+            SaveCollection(false);
+        }
+
+        private void RemoveFolderAndSubfoldersClick(object sender, RoutedEventArgs e)
+        {
+            if (TvFolders.SelectedItem == null)
+            {
+                MessageBox.Show("Выберите папку");
+                return;
+            }
+
+            var folder = (FolderItem)TvFolders.SelectedItem;
+
+
+            if (MessageBox.Show("Удалить папку '" + folder.Name + "' со всеми подпапками и проектами из них?", "Удаление папки",
+                MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes)
+            {
+                return;
+            }
+
+            CleanFolder(folder);
+            RefreshView();
+        }
+
+        private void CleanFolder(FolderItem folder)
+        {
+            if (folder.SubDirs != null && folder.SubDirs.Count > 0)
+            {
+                for (var i = folder.SubDirs.Count - 1; i >= 0; i--)
+                {
+                    CleanFolder(folder.SubDirs[i]);
+                }
+//                folder.SubDirs = null;
+            }
+            if (folder.Projects != null)
+            {
+                for (var i = folder.Projects.Count - 1; i >= 0; i--)
+                {
+                    var project = folder.Projects[i];
+                    var collectionItem = _collectionItems.FirstOrDefault(ci => ci.Project == project);
+                    if (collectionItem != null)
+                        RemoveItem(collectionItem, false);
+                }
+            }
+        }
+
+        private void OnFileDrop(object sender, RoutedEventArgs e)
+        {
+            var dfc = (DropFileControl) sender;
+
+            var fullProjectPath = dfc.DroppedFile;
+
+            var ext = Path.GetExtension(fullProjectPath);
+            var dirName = Path.GetDirectoryName(fullProjectPath);
+            var dirInfo = new DirectoryInfo(dirName);
+            var name = Path.GetFileNameWithoutExtension(fullProjectPath);
+
+
+            ProjectBase newProject = null;
+            if (ext == SolutionFileExt)
+            {
+                newProject = new SolutionBase();
+                _projectCollection.Solution.Add((SolutionBase)newProject);
+            }
+            else if (ext == ProjectFileExt)
+            {
+                newProject = new ProjectBase();
+                _projectCollection.Project.Add(newProject);
+            }
+            if (newProject == null) return;
+            newProject.CategoryId = -1;
+            newProject.Name = name;
+            newProject.FullPath = fullProjectPath;
+
+            ScanFolder(newProject, dirInfo);
+
+            var item = new CollectionItem(newProject, _projectCollection.Tags);
+            _collectionItems.Add(item);
+            _existProjects.Add(newProject.FullPath.ToLower());
+
+            CreateDirInTree(_folders, newProject);
+
+
+            RefreshView();
+            RefreshFolders();
+        }
+
+        private void TvFolders_OnContextMenuOpening(object sender, ContextMenuEventArgs e)
+        {
+            var tv = (TreeView) sender;
+            MiProjectsInFolder.Items.Clear();
+            var folder = tv.SelectedItem as FolderItem;
+            if (folder?.Projects == null || folder.Projects.Count == 0)
+            {
+                return;
+            }
+            foreach (var project in folder.Projects)
+            {
+                var menuItem = new MenuItem
+                {
+                    Header = project.Name
+                };
+                menuItem.Click += (o, args) =>
+                {
+                    LvProjects.Tag = 1;
+                    LvProjects.UnselectAll();
+                    project.IsSelected = true;
+                    LvProjects.Tag = null;
+                };
+                MiProjectsInFolder.Items.Add(menuItem);
+            }
         }
     }
 }

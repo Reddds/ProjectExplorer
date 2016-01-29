@@ -68,6 +68,8 @@ namespace ProjectExplorer.Windows
             SaveReadme();
         }
 
+        public string ReadmeText => TbSource.Text;
+
         private void SaveReadme()
         {
             File.WriteAllText(_readmePath, TbSource.Text);
@@ -76,7 +78,7 @@ namespace ProjectExplorer.Windows
 
         private void ReadmeWindow_OnKeyDown(object sender, KeyEventArgs e)
         {
-            if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl) && e.Key == Key.S)
+            if ((Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)) && e.Key == Key.S)
                 SaveReadme();
         }
     }

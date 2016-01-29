@@ -206,6 +206,12 @@
   <ItemGroup>
     <Resource Include="Assets\Images\addReadme.png" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Utils\Components\RdControls\RdControls.csproj">
+      <Project>{fe111ca0-79d5-494a-9ce4-3816de2ffc57}</Project>
+      <Name>RdControls</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

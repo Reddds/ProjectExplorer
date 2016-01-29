@@ -7,206 +7,215 @@
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         xmlns:helpers="clr-namespace:ProjectExplorer.Helpers"
         xmlns:controls="clr-namespace:ProjectExplorer.Controls"
+        xmlns:RdControls="clr-namespace:RdControls;assembly=RdControls"
         mc:Ignorable="d"
-        Title="Навигатор по проектам" Height="350" Width="672.582" Closed="Window_Closed" Icon="ico.ico">
+        Title="Навигатор по проектам" Height="350" Width="672.582" Closed="Window_Closed" Icon="ico.ico"
+        AllowDrop="True">
     <xctk:BusyIndicator x:Name="BiLoading">
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="80"/>
-                <RowDefinition/>
-                <RowDefinition Height="24"/>
-            </Grid.RowDefinitions>
-            <ToolBar>
-                <StackPanel>
-                    <StackPanel Orientation="Horizontal">
-                        <StackPanel Orientation="Vertical" Margin="5,0">
+        <RdControls:DropFileControl AcceptedExtensions=".sln;.csproj" FileDrop="OnFileDrop">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="80"/>
+                    <RowDefinition/>
+                    <RowDefinition Height="24"/>
+                </Grid.RowDefinitions>
+                <ToolBar>
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <StackPanel Orientation="Vertical" Margin="5,0">
 
-                            <CheckBox x:Name="CbShowSolutions" Style="{StaticResource TagCheckBoxStyle}" IsChecked="True" Click="CbShowSolutionsClicked">
-                                Решения
-                            </CheckBox>
-                            <CheckBox x:Name="CbShowProjects" Style="{StaticResource TagCheckBoxStyle}" IsChecked="True" Click="CbShowProjectsClicked">
-                                Проекты
-                            </CheckBox>
-                            <CheckBox x:Name="CbShowTagLess" Style="{StaticResource TagCheckBoxStyle}" Click="CbShowProjectsClicked">
-                                Без меток
-                            </CheckBox>
-                        </StackPanel>
-                        <StackPanel>
-                            <StackPanel Orientation="Horizontal">
-                                <RadioButton GroupName="TagsBool" Click="TagsBoolAddClick">И</RadioButton>
-                                <RadioButton GroupName="TagsBool" Margin="5,0" IsChecked="True" Click="TagsBoolOrClick">Или</RadioButton>
-                            </StackPanel>
-                            <WrapPanel x:Name="WpTags" MaxWidth="300">
-                                <WrapPanel.Resources>
-                                    <Style TargetType="{x:Type Label}">
-                                        <Setter Property="Background" Value="LightGray"></Setter>
-                                        <Setter Property="Padding" Value="2,0,2,1"></Setter>
-                                        <Setter Property="FontSize" Value="10"></Setter>
-                                        <Setter Property="Margin" Value="2"></Setter>
-                                    </Style>
-
-                                </WrapPanel.Resources>
-                                <CheckBox Style="{StaticResource TagCheckBoxStyle}">
-                                    <Label>lsdjflsf</Label>
+                                <CheckBox x:Name="CbShowSolutions" Style="{StaticResource TagCheckBoxStyle}" IsChecked="True" Click="CbShowSolutionsClicked">
+                                    Решения
                                 </CheckBox>
-                            </WrapPanel>
+                                <CheckBox x:Name="CbShowProjects" Style="{StaticResource TagCheckBoxStyle}" IsChecked="True" Click="CbShowProjectsClicked">
+                                    Проекты
+                                </CheckBox>
+                                <CheckBox x:Name="CbShowTagLess" Style="{StaticResource TagCheckBoxStyle}" Click="CbShowProjectsClicked">
+                                    Без меток
+                                </CheckBox>
+                            </StackPanel>
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <RadioButton GroupName="TagsBool" Click="TagsBoolAddClick">И</RadioButton>
+                                    <RadioButton GroupName="TagsBool" Margin="5,0" IsChecked="True" Click="TagsBoolOrClick">Или</RadioButton>
+                                </StackPanel>
+                                <WrapPanel x:Name="WpTags" MaxWidth="300">
+                                    <WrapPanel.Resources>
+                                        <Style TargetType="{x:Type Label}">
+                                            <Setter Property="Background" Value="LightGray"></Setter>
+                                            <Setter Property="Padding" Value="2,0,2,1"></Setter>
+                                            <Setter Property="FontSize" Value="10"></Setter>
+                                            <Setter Property="Margin" Value="2"></Setter>
+                                        </Style>
+
+                                    </WrapPanel.Resources>
+                                    <CheckBox Style="{StaticResource TagCheckBoxStyle}">
+                                        <Label>lsdjflsf</Label>
+                                    </CheckBox>
+                                </WrapPanel>
+                            </StackPanel>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Label>Поиск</Label>
+                            <TextBox x:Name="TbSearch" Width="200" TextChanged="TbSearchOnTextInput" FontSize="17"></TextBox>
+                            <Button Click="ClearFindClick">
+                                <Image Source="Assets/Images/clear.png" Height="22"></Image>
+                            </Button>
                         </StackPanel>
                     </StackPanel>
-                    <StackPanel Orientation="Horizontal">
-                        <Label>Поиск</Label>
-                        <TextBox x:Name="TbSearch" Width="200" TextChanged="TbSearchOnTextInput" FontSize="17"></TextBox>
-                        <Button Click="ClearFindClick">
-                            <Image Source="Assets/Images/clear.png" Height="22"></Image>
-                        </Button>
+                    <StackPanel Margin="5">
+                        <RadioButton GroupName="ViewStyle" IsChecked="True" Checked="ViewAll">Все</RadioButton>
+                        <RadioButton GroupName="ViewStyle" Checked="ViewByFolders">По папкам</RadioButton>
                     </StackPanel>
-                </StackPanel>
-                <StackPanel Margin="5">
-                    <RadioButton GroupName="ViewStyle" IsChecked="True" Checked="ViewAll">Все</RadioButton>
-                    <RadioButton GroupName="ViewStyle" Checked="ViewByFolders">По папкам</RadioButton>
-                </StackPanel>
-                <Button Margin="5"
+                    <Button Margin="5"
                         HorizontalAlignment="Left"  VerticalAlignment="Top" 
                     Click="ScanFoldersClick">
-                    <StackPanel Orientation="Horizontal">
-                        <Image Source="Assets/Images/folderSearch.png" Width="32"></Image>
-                        <TextBlock  Margin="6,2,2,2">Сканировать папки <LineBreak/>в поисках проектов</TextBlock>
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="Assets/Images/folderSearch.png" Width="32"></Image>
+                            <TextBlock  Margin="6,2,2,2">Сканировать папки <LineBreak/>в поисках проектов</TextBlock>
+                        </StackPanel>
+
+                    </Button>
+                    <StackPanel Margin="2">
+                        <TextBox x:Name="TbRootProjectDir" HorizontalAlignment="Left" Height="22"  TextWrapping="Wrap" Text="d:\Work\ISFCore\" VerticalAlignment="Top" Width="177"/>
+                        <Label Content="Корневой каталог с проектами" HorizontalAlignment="Left"  VerticalAlignment="Top"/>
+
                     </StackPanel>
+                    <Button Click="OptionsClick" >
+                        <Image Source="Assets/Images/settings.png" Width="32"></Image>
+                    </Button>
+                </ToolBar>
 
-                </Button>
-                <StackPanel Margin="2">
-                    <TextBox x:Name="TbRootProjectDir" HorizontalAlignment="Left" Height="22"  TextWrapping="Wrap" Text="d:\Work\ISFCore\" VerticalAlignment="Top" Width="177"/>
-                    <Label Content="Корневой каталог с проектами" HorizontalAlignment="Left"  VerticalAlignment="Top"/>
-
-                </StackPanel>
-                <Button Click="OptionsClick" >
-                    <Image Source="Assets/Images/settings.png" Width="32"></Image>
-                </Button>
-            </ToolBar>
-
-            <Grid Grid.Row="1" >
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="250"/>
-                    <ColumnDefinition/>
-                </Grid.ColumnDefinitions>
-                <TreeView x:Name="TvFolders" SelectedItemChanged="TvFoldersOnSelectedItemChanged">
-                    <TreeView.ContextMenu>
-                        <ContextMenu>
-                            <MenuItem Header="Открыть папку" Click="TreeItemOpenFolder"/>
-                        </ContextMenu>
-                    </TreeView.ContextMenu>
-                    <TreeView.Resources>
-                        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" >
-                            #FF9BDDFB
-                        </SolidColorBrush>
-                        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="Black" />
-                    </TreeView.Resources>
-                    <TreeView.ItemTemplate>
-                        <HierarchicalDataTemplate ItemsSource="{Binding Path=SubDirs}">
-                            <TextBlock Text="{Binding}"/>
-                            <!--<HierarchicalDataTemplate.ItemTemplate>
+                <Grid Grid.Row="1" >
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="250"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <GridSplitter VerticalAlignment="Stretch" Width="5"></GridSplitter>
+                    <TreeView Grid.Column="0" x:Name="TvFolders" Margin="0,0,5,0" SelectedItemChanged="TvFoldersOnSelectedItemChanged"
+                              ContextMenuOpening="TvFolders_OnContextMenuOpening">
+                        <TreeView.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="Открыть папку" Click="TreeItemOpenFolder"/>
+                                <MenuItem x:Name="MiProjectsInFolder" Header="Проекты в папке"/>
+                                <Separator/>
+                                <MenuItem Header="Удалить папку с вложенными папками" Click="RemoveFolderAndSubfoldersClick"/>
+                            </ContextMenu>
+                        </TreeView.ContextMenu>
+                        <TreeView.Resources>
+                            <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" >
+                                #FF9BDDFB
+                            </SolidColorBrush>
+                            <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="Black" />
+                        </TreeView.Resources>
+                        <TreeView.ItemTemplate>
+                            <HierarchicalDataTemplate ItemsSource="{Binding Path=SubDirs}">
+                                <TextBlock Text="{Binding}"/>
+                                <!--<HierarchicalDataTemplate.ItemTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding Path=Name}"></TextBlock>
                                 </DataTemplate>
                             </HierarchicalDataTemplate.ItemTemplate>-->
-                        </HierarchicalDataTemplate>
-                    </TreeView.ItemTemplate>
-                    <TreeView.ItemContainerStyle>
-                        <Style TargetType="TreeViewItem">
-                            <Setter Property="IsSelected" Value="{Binding IsSelected}" />
-                            <Setter Property="IsExpanded" Value="{Binding IsExpanded}" />
+                            </HierarchicalDataTemplate>
+                        </TreeView.ItemTemplate>
+                        <TreeView.ItemContainerStyle>
+                            <Style TargetType="TreeViewItem">
+                                <Setter Property="IsSelected" Value="{Binding IsSelected}" />
+                                <Setter Property="IsExpanded" Value="{Binding IsExpanded}" />
 
-                            <Setter Property="BorderThickness" Value="1"/>
-                            <Style.Triggers>
-                                <Trigger Property="IsSelected" Value="True">
-                                    <Setter Property="BorderBrush" Value="#039BE5"/>
-                                </Trigger>
-                                <MultiTrigger>
-                                    <MultiTrigger.Conditions>
-                                        <Condition Property="IsSelected" Value="True"/>
-                                        <Condition Property="IsSelectionActive" Value="False"/>
-                                    </MultiTrigger.Conditions>
-                                    <Setter Property="BorderBrush" Value="#039BE5"/>
-                                </MultiTrigger>
+                                <Setter Property="BorderThickness" Value="1"/>
+                                <Style.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter Property="BorderBrush" Value="#039BE5"/>
+                                    </Trigger>
+                                    <MultiTrigger>
+                                        <MultiTrigger.Conditions>
+                                            <Condition Property="IsSelected" Value="True"/>
+                                            <Condition Property="IsSelectionActive" Value="False"/>
+                                        </MultiTrigger.Conditions>
+                                        <Setter Property="BorderBrush" Value="#039BE5"/>
+                                    </MultiTrigger>
 
 
 
-                                <Trigger Property="IsSelected" Value="True">
-                                    <Setter Property="helpers:TreeViewItemBehavior.BringIntoViewWhenSelected" Value="True" />
-                                </Trigger>
-                            </Style.Triggers>
-                            <!--<Style.Resources>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter Property="helpers:TreeViewItemBehavior.BringIntoViewWhenSelected" Value="True" />
+                                    </Trigger>
+                                </Style.Triggers>
+                                <!--<Style.Resources>
                                 <Style TargetType="Border">
                                     <Setter Property="CornerRadius" Value="2"/>
                                 </Style>
                             </Style.Resources>-->
-                        </Style>
-                    </TreeView.ItemContainerStyle>
-                </TreeView>
-                <Grid Grid.Column="1" >
-                    <Grid.RowDefinitions>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                    </Grid.RowDefinitions>
-                    <ScrollViewer x:Name="SvMainView" Grid.Row="0" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" Margin="0,0,0,5">
-                        <!--            <WrapPanel x:Name="WpProjects" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True" />-->
-                        <ListView x:Name="LvProjects" ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
+                            </Style>
+                        </TreeView.ItemContainerStyle>
+                    </TreeView>
+                    <Grid Grid.Column="1" >
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <ScrollViewer x:Name="SvMainView" Grid.Row="0" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" Margin="0,0,0,5">
+                            <!--            <WrapPanel x:Name="WpProjects" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True" />-->
+                            <ListView x:Name="LvProjects" ScrollViewer.HorizontalScrollBarVisibility="Disabled" 
                       ScrollViewer.VerticalScrollBarVisibility="Auto" 
                       ScrollViewer.CanContentScroll="True"
                        ContextMenuOpening="CmMainOpening" SelectionChanged="LvProjects_SelectionChanged">
-                            <ListView.ContextMenu>
-                                <ContextMenu x:Name="CmMain">
-                                    <!--                                <MenuItem Header="Показать Readme" Click="ShowReadmeClick"/>-->
-                                    <MenuItem Header="Открыть папку" Click="OpenFolderClick"/>
-                                    <Separator />
-                                    <MenuItem Header="Обновить информацию" Click="UpdateInfoClick"/>
-                                    <Separator />
-                                    <MenuItem Header="Удалить" Click="RemoveItemClick"/>
-                                    <Separator />
-                                </ContextMenu>
-                            </ListView.ContextMenu>
-                            <ListView.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <WrapPanel Orientation="Horizontal" />
-                                </ItemsPanelTemplate>
-                            </ListView.ItemsPanel>
-                            <ListView.ItemContainerStyle>
-                                <Style TargetType="ListViewItem">
-                                    <Setter Property="IsSelected" Value="{Binding (controls:CollectionItem.Project).IsSelected}" />
+                                <ListView.ContextMenu>
+                                    <ContextMenu x:Name="CmMain">
+                                        <!--                                <MenuItem Header="Показать Readme" Click="ShowReadmeClick"/>-->
+                                        <MenuItem Header="Открыть папку" Click="OpenFolderClick"/>
+                                        <Separator />
+                                        <MenuItem Header="Обновить информацию" Click="UpdateInfoClick"/>
+                                        <Separator />
+                                        <MenuItem Header="Удалить" Click="RemoveItemClick"/>
+                                        <Separator />
+                                    </ContextMenu>
+                                </ListView.ContextMenu>
+                                <ListView.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel Orientation="Horizontal" />
+                                    </ItemsPanelTemplate>
+                                </ListView.ItemsPanel>
+                                <ListView.ItemContainerStyle>
+                                    <Style TargetType="ListViewItem">
+                                        <Setter Property="IsSelected" Value="{Binding (controls:CollectionItem.Project).IsSelected}" />
 
-                                    <Setter Property="BorderThickness" Value="1"/>
-                                    <Style.Triggers>
-                                        <Trigger Property="IsSelected" Value="True">
-                                            <Setter Property="BorderBrush" Value="#039BE5"/>
-                                        </Trigger>
+                                        <Setter Property="BorderThickness" Value="1"/>
+                                        <Style.Triggers>
+                                            <Trigger Property="IsSelected" Value="True">
+                                                <Setter Property="BorderBrush" Value="#039BE5"/>
+                                            </Trigger>
 
-                                        <Trigger Property="IsSelected" Value="True">
-                                            <Setter Property="helpers:ListViewItemBehavior.BringIntoViewWhenSelected" Value="True" />
-                                        </Trigger>
+                                            <Trigger Property="IsSelected" Value="True">
+                                                <Setter Property="helpers:ListViewItemBehavior.BringIntoViewWhenSelected" Value="True" />
+                                            </Trigger>
 
-                                    </Style.Triggers>
+                                        </Style.Triggers>
 
-                                </Style>
-                            </ListView.ItemContainerStyle>
-                        </ListView>
+                                    </Style>
+                                </ListView.ItemContainerStyle>
+                            </ListView>
 
-                    </ScrollViewer>
-                    <GridSplitter Grid.Row="0" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Height="5"></GridSplitter>
-                    <WebBrowser Grid.Row="1"  Name="WbReadme" Margin="0,0,45,0"></WebBrowser>
-                    <Button x:Name="BEditReadme" Grid.Row="1" Visibility="Hidden" Click="EditReadmeClick" Margin="5" ToolTip="Редактировать" HorizontalAlignment="Right" VerticalAlignment="Top">
-                        <Image Source="Assets/Images/editReadme.png" Width="32"></Image>
-                    </Button>
-                    <Button x:Name="BAddReadme" Grid.Row="1" Visibility="Hidden" Click="AddReadmeClick" Margin="5" ToolTip="Добавить readme.md" HorizontalAlignment="Right" VerticalAlignment="Top">
-                        <Image Source="Assets/Images/addReadme.png"  Width="32"></Image>
-                    </Button>
+                        </ScrollViewer>
+                        <GridSplitter Grid.Row="0" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Height="5"></GridSplitter>
+                        <WebBrowser Grid.Row="1"  Name="WbReadme" Margin="0,0,45,0"></WebBrowser>
+                        <Button x:Name="BEditReadme" Grid.Row="1" Visibility="Hidden" Click="EditReadmeClick" Margin="5" ToolTip="Редактировать" HorizontalAlignment="Right" VerticalAlignment="Top">
+                            <Image Source="Assets/Images/editReadme.png" Width="32"></Image>
+                        </Button>
+                        <Button x:Name="BAddReadme" Grid.Row="1" Visibility="Hidden" Click="AddReadmeClick" Margin="5" ToolTip="Добавить readme.md" HorizontalAlignment="Right" VerticalAlignment="Top">
+                            <Image Source="Assets/Images/addReadme.png"  Width="32"></Image>
+                        </Button>
+                    </Grid>
                 </Grid>
+                <TextBox x:Name="TbTest" Grid.Row="2"></TextBox>
+                <StatusBar Grid.Row="2">
+                    <StackPanel x:Name="SpScanning" Visibility="Hidden" Orientation="Horizontal">
+                        <Label Padding="2,0" FontWeight="Bold">Сканируется:</Label>
+                        <Label x:Name="LCurrentDir"  Padding="2,0"></Label>
+                    </StackPanel>
+                </StatusBar>
             </Grid>
-            <TextBox x:Name="TbTest" Grid.Row="2"></TextBox>
-            <StatusBar Grid.Row="2">
-                <StackPanel x:Name="SpScanning" Visibility="Hidden" Orientation="Horizontal">
-                    <Label Padding="2,0" FontWeight="Bold">Сканируется:</Label>
-                    <Label x:Name="LCurrentDir"  Padding="2,0"></Label>
-                </StackPanel>
-            </StatusBar>
-        </Grid>
+        </RdControls:DropFileControl>
     </xctk:BusyIndicator>
 </Window>
